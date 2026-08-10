@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Detailní oponentura — NAV-LIVE zálohování</title>
+<style>
+:root {
+  --bg:#0b1020; --panel:#11182b; --panel2:#172036; --text:#e9eefb; --muted:#aab4ca;
+  --red:#ff5d6c; --orange:#ffad5a; --yellow:#ffd45c; --green:#69d39b; --blue:#74a7ff;
+  --border:#2a3653; --code:#090d18;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+main{max-width:1180px;margin:0 auto;padding:36px 24px 80px}
+h1{font-size:2.35rem;margin:0 0 8px}
+h2{margin-top:46px;border-bottom:1px solid var(--border);padding-bottom:10px}
+h3{margin-top:30px}
+p,li{color:var(--text)}
+.muted{color:var(--muted)}
+.hero{background:linear-gradient(135deg,#151f38,#0f1728);border:1px solid var(--border);border-radius:18px;padding:28px}
+.verdict{font-size:1.25rem;font-weight:700;padding:16px 18px;border-left:5px solid var(--red);background:#2a1420;border-radius:10px;margin:20px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:22px 0}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px}
+.metric{font-size:2rem;font-weight:800}
+.red{color:var(--red)} .orange{color:var(--orange)} .yellow{color:var(--yellow)} .green{color:var(--green)} .blue{color:var(--blue)}
+.badge{display:inline-block;padding:3px 9px;border-radius:999px;font-weight:700;font-size:.82rem}
+.b-red{background:#3a1620;color:#ff9aa5} .b-orange{background:#392716;color:#ffc17d} .b-yellow{background:#3a3115;color:#ffe27d} .b-green{background:#153426;color:#8ee8b8}
+table{width:100%;border-collapse:collapse;margin:18px 0;background:var(--panel)}
+th,td{border:1px solid var(--border);padding:10px 12px;vertical-align:top}
+th{background:var(--panel2);text-align:left}
+code{background:var(--code);padding:2px 6px;border-radius:5px}
+pre{background:var(--code);border:1px solid var(--border);padding:16px;overflow:auto;border-radius:10px}
+blockquote{margin:18px 0;padding:12px 16px;border-left:4px solid var(--blue);background:#111a30;color:#dce6ff}
+.toc a{color:#b9cdfd;text-decoration:none} .toc li{margin:5px 0}
+.note{background:#132239;border:1px solid #2d4d79;border-radius:12px;padding:16px}
+.source{font-size:.9rem;color:var(--muted)}
+strong{color:#fff}
+</style>
+</head>
+<body>
+<main>
+<section class="hero">
+  <div class="muted">10. 8. 2026 • NAV-LIVE • B-S-W-SQL-01 • SQL Server 2017</div>
+  <h1>Detailní oponentura návrhu zálohování NAV-LIVE</h1>
+  <p>Technická revize dokumentu „Oponentura 2 — protinávrh v3“ doplněná o skutečné události z ITDashboard exportu.</p>
+  <div class="verdict">TECHNICKÝ SMĚR PŘIJAT. PRODUKČNÍ STAV VYŽADUJE OKAMŽITÉ NÁPRAVNÉ OPATŘENÍ.</div>
+  <div class="grid">
+    <div class="card"><div class="muted">Event 9002 / LOG_BACKUP</div><div class="metric red">286</div><div>událostí pro NAV-LIVE</div></div>
+    <div class="card"><div class="muted">Interval incidentu</div><div class="metric orange">73.5 s</div><div>03:33:18.606–03:34:32.156 UTC</div></div>
+    <div class="card"><div class="muted">Emergency_Cache_Warming</div><div class="metric yellow">9</div><div>selhání v exportu</div></div>
+    <div class="card"><div class="muted">Současné okno TLog</div><div class="metric blue">05:30–15:46</div><div>není 24/7</div></div>
+  </div>
+</section>
+
+<section class="toc">
+<h2>Obsah</h2>
+<ol>
+<li><a href="#incident">Nový klíčový nález: incident již nastal</a></li>
+<li><a href="#n1">N1 — souběžné log backup joby</a></li>
+<li><a href="#n2">N2 — pevný soubor a CONTINUE_AFTER_ERROR</a></li>
+<li><a href="#n3">N3 — FULL/DIFF strategie</a></li>
+<li><a href="#copyonly">COPY_ONLY</a></li>
+<li><a href="#job">Opravený job — další výhrady</a></li>
+<li><a href="#monitoring">Monitoring a alerting</a></li>
+<li><a href="#rpo">RPO/RTO a log shipping</a></li>
+<li><a href="#final">Doporučený finální verdikt</a></li>
+</ol>
+</section>
+
+<section id="incident">
+<h2>1. Nový klíčový nález: riziko se materializovalo</h2>
+<p>CSV export obsahuje <strong>286 událostí SQL Server Error 9002</strong> se zprávou:</p>
+<pre>The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.</pre>
+<p>Události jsou soustředěny od <strong>2026-08-10T03:33:18.606000Z</strong> do <strong>2026-08-10T03:34:32.156000Z</strong>. To už není hypotéza o možném zaplnění logu. Je to doložený produkční incident.</p>
+<div class="note"><strong>Dopad na klasifikaci:</strong> Fáze 0 už nemá být popisována pouze jako prevence. Jde o nápravné opatření po prokázaném incidentu způsobeném stavem <code>LOG_BACKUP</code>.</div>
+</section>
+
+<section id="n1">
+<h2>2. N1 — souběžné log backup joby</h2>
+<p><span class="badge b-red">BLOKUJÍCÍ PROVOZNĚ</span> Závěr dokumentu je správný: staré joby <code>Tlog</code> a <code>Tlog2</code> nesmějí dlouhodobě běžet současně s novým 24/7 jobem do různých cest.</p>
+<p>Formulace „rozštěpí řetěz“ je ale technicky příliš hrubá. SQL Server udržuje jednu LSN posloupnost. Souběžné joby mohou vytvářet jednu posloupnost log backupů rozdělenou mezi více médií. Správný termín je spíš <strong>fragmentace restore chainu mezi několik nezávisle spravovaných sad souborů</strong>.</p>
+<table>
+<tr><th>Výrok</th><th>Hodnocení</th></tr>
+<tr><td>Více jobů do různých míst komplikuje restore</td><td>Správně</td></tr>
+<tr><td>Cleanup jedné větve může znemožnit restore přes daný LSN úsek</td><td>Správně</td></tr>
+<tr><td>Samotné vypnutí jednoho ze souběžných jobů automaticky vytvoří LSN díru</td><td><strong>Ne nutně</strong>; pokud jiný job dál korektně zálohuje log, LSN chain pokračuje</td></tr>
+<tr><td>Alert jen podle <code>backupset</code> může být falešně zelený</td><td>Správně</td></tr>
+</table>
+</section>
+
+<section id="n2">
+<h2>3. N2 — pevný soubor a CONTINUE_AFTER_ERROR</h2>
+<h3>N2a: jeden rostoucí .trn soubor</h3>
+<p><span class="badge b-red">BLOKUJÍCÍ</span> Kritika je oprávněná. Jeden stále doplňovaný soubor komplikuje retenci, obnovu i monitoring. Doporučení <strong>1 backup = 1 fyzický soubor</strong> je vhodnější.</p>
+<p>Výrok „ztráta souboru = ztráta celého řetězu“ je vhodné zpřesnit na: <strong>ztratí se všechny backup sety uložené na daném médiu, což může znemožnit pokračovat v point-in-time restore přes příslušné období.</strong></p>
+
+<h3>N2b: CONTINUE_AFTER_ERROR</h3>
+<p><span class="badge b-red">BLOKUJÍCÍ</span> Z rutinního backup jobu odstranit. Standard má být:</p>
+<pre>WITH COMPRESSION, CHECKSUM</pre>
+<p>Silnější a přesnější argumentace je, že rutinní proces nemá normalizovat situaci, kdy <code>CHECKSUM</code> odhalí problém. Taková událost má být viditelný incident a má vyvolat diagnostiku.</p>
+</section>
+
+<section id="n3">
+<h2>4. N3 — denní FULL + týdenní DIFF</h2>
+<p><span class="badge b-orange">ZÁVAŽNÉ</span> Dokument správně upozorňuje, že kombinace <strong>denní FULL + týdenní DIFF</strong> neposkytuje praktický recovery ani storage benefit.</p>
+<table>
+<tr><th>Varianta</th><th>Smysl</th></tr>
+<tr><td>Týdenní FULL + denní DIFF + častý LOG</td><td>Úspora místa, delší restore chain</td></tr>
+<tr><td>Denní FULL + častý LOG</td><td>Jednodušší a kratší restore chain</td></tr>
+</table>
+<p>Volba má být provedena až podle naměřené kapacity a požadovaného RTO.</p>
+</section>
+
+<section id="copyonly">
+<h2>5. COPY_ONLY</h2>
+<p><span class="badge b-orange">ZÁVAŽNÉ</span> Pokud cílová strategie používá diferenciální zálohy, ad-hoc full backup produkční databáze používaný například pro NAV-TEST má být explicitně <code>COPY_ONLY</code>, aby neovlivňoval differential base.</p>
+<pre>BACKUP DATABASE [NAV-LIVE]
+...
+WITH COPY_ONLY, COMPRESSION, CHECKSUM;</pre>
+<p>Pokud se od diffů úplně ustoupí, tento konkrétní problém odpadá.</p>
+</section>
+
+<section id="job">
+<h2>6. Opravený job — další technické výhrady</h2>
+<h3>6.1 Název souboru</h3>
+<p>Časové razítko v návrhu má přesnost jen na sekundy. Pro běžný 15min schedule to většinou stačí, ale ruční spuštění nebo paralelní pokus může kolidovat. Doporučuji přidat milisekundy nebo jiný unikátní suffix.</p>
+<pre>NAV-LIVE_log_20260810_132015_437.trn</pre>
+
+<h3>6.2 Ověření cílové cesty</h3>
+<p>Před prvním backupem musí rollout ověřit: existenci adresáře, write permission SQL Server service accountu a dostatek volného místa. Nemá to zůstat jen jako poznámka pod skriptem.</p>
+
+<h3>6.3 RESTORE VERIFYONLY</h3>
+<p>Po prvním ručním backupu nestačí pouze záznam v <code>msdb.dbo.backupset</code>. Doporučuji přidat:</p>
+<pre>RESTORE VERIFYONLY
+FROM DISK = N'&lt;novy_soubor&gt;'
+WITH CHECKSUM;</pre>
+<p><code>VERIFYONLY</code> nenahrazuje skutečný restore test, ale je vhodný jako minimální rollout kontrola.</p>
+
+<h3>6.4 Dva úspěšné běhy nového jobu</h3>
+<p>Kontrola podle cílové cesty ve <code>backupmediafamily</code> neprokazuje přímo, že zálohy vytvořil konkrétní job. Robustní acceptance test má kombinovat <strong>SQL Agent job history + backup history + existenci fyzického souboru</strong>.</p>
+
+<h3>6.5 log_reuse_wait_desc</h3>
+<p>Požadavek, aby hodnota byla vždy <code>NOTHING</code>, je příliš absolutní. Krátkodobé jiné stavy mohou být legitimní. Vhodnější pravidlo je to, které už obsahuje cílový stav dokumentu: <strong>stav ≠ NOTHING déle než definovaný interval → alert</strong>.</p>
+</section>
+
+<section id="monitoring">
+<h2>7. Monitoring a alerting</h2>
+<p>Export obsahuje <strong>9 selhání</strong> jobu <code>Emergency_Cache_Warming</code> se schedulem <code>Every_5_Min_PLE_Check</code>. To samo o sobě není backup incident, ale je to důležitý důkaz, že <strong>existence SQL Agent jobu neznamená funkční monitoring</strong>.</p>
+<p>Krok 0.0 proto doporučuji rozšířit z „ověřit Database Mail“ na end-to-end test:</p>
+<pre>SQL Agent / detekce
+        ↓
+Database Mail nebo ITDashboard
+        ↓
+skutečná notifikace
+        ↓
+konkrétní příjemce
+        ↓
+potvrzení přijetí</pre>
+</section>
+
+<section id="rpo">
+<h2>8. RPO/RTO a log shipping</h2>
+<p>Jedna z nejsilnějších částí oponentury je správné oddělení technické možnosti od business rozhodnutí. IT může navrhnout například 15min log backupy, ale cílové <strong>RPO a RTO musí schválit vedení</strong>.</p>
+<p>Log shipping nemá být prezentován jako alternativa k backupům. Je postaven na log backupech a přidává další recovery/availability mechanismus. Správná logika je:</p>
+<pre>backup strategie
++
+volitelně log shipping</pre>
+<p>Licenční tvrzení o pasivním sekundáru doporučuji formulovat jako povinné ověření proti aktuálním Microsoft Product Terms a konkrétní licenční smlouvě, nikoliv jako kategorický závěr bez licenčního posouzení.</p>
+</section>
+
+<section id="final">
+<h2>9. Doporučený finální verdikt</h2>
+<div class="verdict">TECHNICKÝ SMĚR PŘIJAT. PRODUKČNÍ STAV JE PROKAZATELNĚ NEVYHOVUJÍCÍ A VYŽADUJE OKAMŽITOU OPRAVU LOG BACKUPŮ 24/7.</div>
+<table>
+<tr><th>Priorita</th><th>Opatření</th></tr>
+<tr><td><span class="badge b-red">P0</span></td><td>Zajistit funkční log backup NAV-LIVE 24/7 a ověřit první reálné noční běhy.</td></tr>
+<tr><td><span class="badge b-red">P0</span></td><td>Vyřadit dlouhodobý souběh starých a nových TLog jobů; zachovat možnost rychlého rollbacku.</td></tr>
+<tr><td><span class="badge b-orange">P1</span></td><td>Doplnit end-to-end monitoring, RESTORE VERIFYONLY a pravidelný skutečný restore test.</td></tr>
+<tr><td><span class="badge b-orange">P1</span></td><td>Rozhodnout FULL/DIFF variantu až podle kapacity a RTO; při diffech zavést COPY_ONLY pro ad-hoc full.</td></tr>
+<tr><td><span class="badge b-yellow">P2</span></td><td>Dokončit runbook, jmenné RACI, ukládání dokumentace do verzovaného úložiště a licenční posouzení log shippingu.</td></tr>
+</table>
+<p><strong>Nejdůležitější změna proti původní oponentuře:</strong> věta „transaction log by se mohl zaplnit“ už není přiměřená. Podle dodaného exportu se NAV-LIVE dne 10. 8. 2026 skutečně dostal do stavu <code>LOG_BACKUP</code> a SQL Server opakovaně hlásil Error 9002.</p>
+</section>
+
+<hr style="border:0;border-top:1px solid var(--border);margin-top:50px">
+<p class="source">Podklady: 2026-08-10-oponentura-2-protinavrh-v3.md a itdashboard-events-202608100704-filtered.csv. HTML je koncipováno jako technická revize/oponentura; neprovádí žádné změny na produkčním SQL Serveru.</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analýza incidentů — NAV-LIVE zálohování | 2026-08-10</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #f6f8fa;
+    --card: #ffffff;
+    --text: #1f2328;
+    --text-muted: #656d76;
+    --border: #d0d7de;
+    --accent: #0969da;
+    --accent-soft: #ddf4ff;
+    --green: #1a7f37;
+    --green-soft: #dafbe1;
+    --red: #cf222e;
+    --red-soft: #ffebe9;
+    --orange: #bc4c00;
+    --orange-soft: #fff1e5;
+    --gray-soft: #eaeef2;
+    --shadow: 0 1px 3px rgba(31,35,40,.12), 0 8px 24px rgba(66,74,83,.12);
+    --mono: "Cascadia Code", "Consolas", "SF Mono", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem 1rem;
+  }
+  .container { max-width: 1100px; margin: 0 auto; }
+
+  /* ---------- Header ---------- */
+  header.hero {
+    background: linear-gradient(135deg, #0b3d66 0%, #0969da 60%, #2188ff 100%);
+    color: #fff;
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+  }
+  header.hero h1 { font-size: 1.9rem; margin-bottom: .5rem; }
+  header.hero p.subtitle { opacity: .9; font-size: 1.05rem; }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: .75rem;
+    margin-top: 1.5rem;
+  }
+  .meta-item {
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 10px;
+    padding: .6rem .9rem;
+    font-size: .85rem;
+  }
+  .meta-item strong { display: block; font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; opacity: .75; margin-bottom: .15rem; }
+
+  /* ---------- Sections ---------- */
+  section { margin-bottom: 2.5rem; }
+  h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    padding-bottom: .5rem;
+    border-bottom: 2px solid var(--border);
+  }
+  h2 .num {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    width: 1.8rem; height: 1.8rem;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 1.8rem;
+    font-size: .95rem;
+    margin-right: .5rem;
+  }
+  h3 { font-size: 1.1rem; margin: 1.25rem 0 .6rem; }
+  p { margin-bottom: .8rem; }
+
+  /* ---------- Verdict banner ---------- */
+  .verdict {
+    background: var(--green-soft);
+    border: 1px solid #4ac26b66;
+    border-left: 6px solid var(--green);
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .verdict h3 { color: var(--green); margin-top: 0; }
+  .verdict blockquote {
+    margin: .8rem 0 0;
+    padding: .6rem 1rem;
+    background: rgba(26,127,55,.08);
+    border-radius: 6px;
+    font-style: italic;
+    font-size: .92rem;
+  }
+
+  /* ---------- Cards ---------- */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+  }
+  .card.crit::before { background: var(--red); }
+  .card.warn::before { background: var(--orange); }
+  .card.info::before { background: var(--text-muted); }
+  .card h4 { font-size: 1rem; margin-bottom: .4rem; }
+  .card .count { font-size: 2rem; font-weight: 700; }
+  .card .desc { font-size: .85rem; color: var(--text-muted); margin-top: .4rem; }
+  .badge {
+    display: inline-block;
+    padding: .15rem .6rem;
+    border-radius: 999px;
+    font-size: .72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  .badge.yes { background: var(--green-soft); color: var(--green); }
+  .badge.partial { background: var(--orange-soft); color: var(--orange); }
+  .badge.no { background: var(--gray-soft); color: var(--text-muted); }
+
+  /* ---------- Tables ---------- */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    font-size: .9rem;
+    margin: 1rem 0;
+  }
+  th, td { padding: .65rem .9rem; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: var(--gray-soft); font-weight: 600; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f6f8fa; }
+
+  /* ---------- Diagram box ---------- */
+  .diagram-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.2rem 0;
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+  }
+  .diagram-box .caption {
+    font-size: .85rem;
+    color: var(--text-muted);
+    margin-top: .8rem;
+    text-align: center;
+    font-style: italic;
+  }
+  .mermaid { display: flex; justify-content: center; }
+
+  /* ---------- Code ---------- */
+  pre {
+    background: #0d1117;
+    color: #e6edf3;
+    padding: 1rem;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: .82rem;
+    line-height: 1.5;
+    margin: .8rem 0;
+  }
+  code.inline {
+    background: var(--gray-soft);
+    padding: .15rem .4rem;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: .85em;
+  }
+
+  /* ---------- Timeline (CSS) ---------- */
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+    margin: 1.5rem 0;
+  }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: .5rem; top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(var(--red), var(--orange), var(--green));
+    border-radius: 2px;
+  }
+  .tl-item { position: relative; margin-bottom: 1.2rem; padding-left: .5rem; }
+  .tl-item::before {
+    content: "";
+    position: absolute;
+    left: -1.72rem; top: .35rem;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--card);
+    border: 3px solid var(--accent);
+  }
+  .tl-item.err::before { border-color: var(--red); }
+  .tl-item.warn::before { border-color: var(--orange); }
+  .tl-item.ok::before { border-color: var(--green); }
+  .tl-time { font-family: var(--mono); font-weight: 700; font-size: .85rem; }
+  .tl-desc { font-size: .9rem; color: var(--text-muted); }
+
+  /* ---------- Score bar ---------- */
+  .score { margin: .8rem 0; }
+  .score-label { display: flex; justify-content: space-between; font-size: .85rem; margin-bottom: .3rem; }
+  .score-bar { height: 10px; background: var(--gray-soft); border-radius: 999px; overflow: hidden; }
+  .score-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #2da44e, #4ac26b); }
+  .score-fill.mid { background: linear-gradient(90deg, #bf8700, #d4a72c); }
+
+  /* ---------- Callout ---------- */
+  .callout {
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+    border-left: 5px solid;
+    font-size: .92rem;
+  }
+  .callout.rec { background: var(--accent-soft); border-color: var(--accent); }
+  .callout.gap { background: var(--orange-soft); border-color: var(--orange); }
+  .callout.ok { background: var(--green-soft); border-color: var(--green); }
+  .callout strong { display: block; margin-bottom: .3rem; }
+
+  footer {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: .8rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .card, .diagram-box, table { box-shadow: none; border: 1px solid #ccc; }
+    .mermaid svg { max-width: 100%; }
+  }
+  @media (max-width: 700px) {
+    header.hero h1 { font-size: 1.4rem; }
+    .timeline { padding-left: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ============ HEADER ============ -->
+<header class="hero">
+  <h1>🔍 Analýza incidentů vs. Návrh zálohování NAV-LIVE</h1>
+  <p class="subtitle">Řeší návrh zálohování (v2) problémy zachycené v Event Logu ze dne 2026-08-10?</p>
+  <div class="meta-grid">
+    <div class="meta-item"><strong>Zdroj dat</strong>itdashboard-events-202608100704-filtered.csv</div>
+    <div class="meta-item"><strong>Server</strong>B-S-W-SQL-01</div>
+    <div class="meta-item"><strong>Časové okno</strong>2026-08-10 03:33 – 06:16 UTC (05:33 – 08:16 SELČ)</div>
+    <div class="meta-item"><strong>Referenční dokument</strong>NAV-LIVE-zalohovani-navrh-v2.md</div>
+    <div class="meta-item"><strong>Celkem událostí</strong>~226 záznamů</div>
+    <div class="meta-item"><strong>Datum analýzy</strong>10. 8. 2026</div>
+  </div>
+</header>
+
+<!-- ============ 1. EXECUTIVE SUMMARY ============ -->
+<section id="summary">
+  <h2><span class="num">1</span>Executive Summary</h2>
+
+  <div class="verdict">
+    <h3>✅ ANO — návrh řeší hlavní problém zachycený v logu.</h3>
+    <p>
+      Kritická chyba <strong>Event ID 9002</strong> („transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'"),
+      která se objevila v masivní dávce <strong>213×</strong> během 74 sekund mezi <strong>05:33:18 a 05:34:32 SELČ</strong>,
+      je <strong>přesně ten problém</strong>, který návrh identifikuje, analyzuje a řeší.
+    </p>
+    <blockquote>
+      „Naposledy 2026-08-10 v 5:33" — návrh v2, kapitola 1<br>
+      „Mezi 05:33:18 a 05:34:32 vygeneroval SQL Server dávku chyb" — návrh v2, kapitola 5.2
+    </blockquote>
+  </div>
+
+  <h3>Přehled pokrytí problémů</h3>
+  <div class="cards">
+    <div class="card crit">
+      <h4>9002: Log Full</h4>
+      <div class="count">213×</div>
+      <div class="desc">Transaction log NAV-LIVE je plný, čeká na LOG_BACKUP</div>
+      <p style="margin-top:.6rem"><span class="badge yes">✅ Návrh řeší kompletně</span></p>
+    </div>
+    <div class="card warn">
+      <h4>208: Job Failed</h4>
+      <div class="count">8×</div>
+      <div class="desc">Emergency_Cache_Warming (PLE check) selhává</div>
+      <p style="margin-top:.6rem"><span class="badge partial">⚠️ Řeší nepřímo</span></p>
+    </div>
+    <div class="card info">
+      <h4>4098: GPO Drive Maps</h4>
+      <div class="count">4×</div>
+      <div class="desc">Síťové disky Y: a I: nenalezeny</div>
+      <p style="margin-top:.6rem"><span class="badge no">➖ Mimo scope</span></p>
+    </div>
+    <div class="card info">
+      <h4>1803: TPM-WMI</h4>
+      <div class="count">1×</div>
+      <div class="desc">PK-signed KEK nenalezen (VMware)</div>
+      <p style="margin-top:.6rem"><span class="badge no">➖ Mimo scope</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. ČASOVÁ OSA ============ -->
+<section id="timeline">
+  <h2><span class="num">2</span>Časová osa incidentů (SELČ)</h2>
+
+  <div class="timeline">
+    <div class="tl-item warn">
+      <div class="tl-time">předchozí den 15:46</div>
+      <div class="tl-desc">Poslední záloha logu. Okno <code class="inline">Tlog</code> končí — dalších 13 h 44 min se log nezálohuje.</div>
+    </div>
+    <div class="tl-item err">
+      <div class="tl-time">05:33:18</div>
+      <div class="tl-desc">🔴 PRVNÍ chyba 9002 — log je plný (100 GB), SQL Server nemůže zapisovat transakce.</div>
+    </div>
+    <div class="tl-item err">
+      <div class="tl-time">05:33:18 → 05:34:32</div>
+      <div class="tl-desc">🔴 213× chyba 9002 za 74 sekund (~2,9 chyby/s). Noční joby padají, uživatelé nemohou pracovat.</div>
+    </div>
+    <div class="tl-item ok">
+      <div class="tl-time">05:34:32</div>
+      <div class="tl-desc">🟢 Poslední chyba 9002 — začíná běžet záloha logu (Tlog2 / ranní okno), log se uvolňuje.</div>
+    </div>
+    <div class="tl-item warn">
+      <div class="tl-time">05:35:56</div>
+      <div class="tl-desc">🟠 Emergency_Cache_Warming FAILED (1. výskyt) — schedule „Every_5_Min_PLE_Check".</div>
+    </div>
+    <div class="tl-item warn">
+      <div class="tl-time">05:36:22</div>
+      <div class="tl-desc">🟠 GPO Drive Maps FAILED — disky Y: a I: nenalezeny (0x80070035).</div>
+    </div>
+    <div class="tl-item warn">
+      <div class="tl-time">05:55 – 08:10</div>
+      <div class="tl-desc">🟠 Emergency_Cache_Warming selhává opakovaně (~každých 15 min): 05:55, 06:10, 06:35, 06:50, 07:15, 07:30, 07:55, 08:10.</div>
+    </div>
+    <div class="tl-item warn">
+      <div class="tl-time">07:08:23</div>
+      <div class="tl-desc">🟠 GPO Drive Maps FAILED podruhé (Y: a I:).</div>
+    </div>
+    <div class="tl-item warn">
+      <div class="tl-time">07:57:36</div>
+      <div class="tl-desc">🟠 TPM-WMI chyba 1803 — PK-signed KEK nenalezen (VMware VM).</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. DETAILNÍ ANALÝZA ============ -->
+<section id="analysis">
+  <h2><span class="num">3</span>Detailní analýza jednotlivých problémů</h2>
+
+  <!-- 3.1 -->
+  <h3>3.1 Event ID 9002 — Transaction Log Full ⚠️ KRITICKÉ</h3>
+  <pre>err;9002;MSSQLSERVER;Application
+"The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'."</pre>
+
+  <table>
+    <tr><th>Metrika</th><th>Hodnota</th></tr>
+    <tr><td>Počet výskytů</td><td><strong>213×</strong></td></tr>
+    <tr><td>Časové rozmezí (SELČ)</td><td>05:33:18.606 – 05:34:32.156</td></tr>
+    <tr><td>Trvání dávky</td><td>74 sekund</td></tr>
+    <tr><td>Frekvence</td><td>~2,9 chyby / sekundu</td></tr>
+    <tr><td>Příčina dle SQL Serveru</td><td><code class="inline">LOG_BACKUP</code> — log čeká na zálohu, která nepřišla</td></tr>
+  </table>
+
+  <div class="callout ok">
+    <strong>Jak to řeší návrh:</strong>
+    <ul style="margin:.4rem 0 0 1.2rem">
+      <li><strong>Diagnóza</strong> (kap. 2.3a): Log backup je ve FULL recovery jediný způsob, jak se log recykluje — není to volitelná ochrana.</li>
+      <li><strong>Příčina</strong> (kap. 5.1): Okno log záloh 05:30–15:46, mimo něj log roste na strop 100 GB.</li>
+      <li><strong>Řešení</strong> (kap. 7.1, Fáze 1): Rozšířit okno na 00:00–23:59, všech 7 dní.</li>
+      <li><strong>Monitoring</strong> (kap. 11.1): Alert na chybu 9002 do ITDashboardu.</li>
+    </ul>
+  </div>
+
+  <!-- 3.2 -->
+  <h3>3.2 Event ID 208 — Emergency_Cache_Warming Job Failed ⚠️</h3>
+  <pre>warn;208;SQLSERVERAGENT;Application
+"SQL Server Scheduled Job 'Emergency_Cache_Warming' - Status: Failed -
+ Invoked on: Schedule 3094 (Every_5_Min_PLE_Check).
+ The last step to run was step 1 (Check_PLE_And_Warm2)."</pre>
+
+  <table>
+    <tr><th>Metrika</th><th>Hodnota</th></tr>
+    <tr><td>Počet výskytů</td><td>8×</td></tr>
+    <tr><td>Časy (SELČ)</td><td>05:55, 06:10, 06:35, 06:50, 07:15, 07:30, 07:55, 08:10</td></tr>
+    <tr><td>Interval</td><td>~15 min (schedule deklaruje 5 min)</td></tr>
+    <tr><td>Selhávající krok</td><td><code class="inline">Check_PLE_And_Warm2</code></td></tr>
+  </table>
+
+  <p>
+    Job se snaží řešit nízký <strong>PLE (Page Life Expectancy)</strong> — metriku ukazující, jak dlouho se stránky drží
+    v buffer poolu. Nízký PLE znamená časté čtení z disku místo z paměti.
+  </p>
+
+  <div class="callout gap">
+    <strong>⚠️ Mezera v návrhu:</strong>
+    Návrh tento job přímo nezmiňuje. Pokud je příčinou selhání plný log (9002), řeší to Fáze 1 nepřímo.
+    Chybí ale <strong>monitoring PLE</strong> jako takový. Doporučuji doplnit do kapitoly 11:
+    <pre>SELECT counter_name, cntr_value AS ple_seconds
+FROM sys.dm_os_performance_counters
+WHERE object_name = 'SQLServer:Buffer Manager'
+  AND counter_name = 'Page life expectancy';
+-- práh: &lt; 300 s = varování</pre>
+  </div>
+
+  <!-- 3.3 -->
+  <h3>3.3 Event ID 4098 — Group Policy Drive Maps ℹ️</h3>
+  <pre>warn;4098;Group Policy Drive Maps;Application
+"The user 'Y:' preference item in the 'MAP_Network_Drive' GPO did not apply
+ because it failed with error code '0x80070035 The network path was not found.'"</pre>
+  <p>
+    GPO <code class="inline">MAP_Network_Drive</code> se snaží mapovat síťové disky <strong>Y:</strong> a <strong>I:</strong>,
+    ale cílový server není dostupný. Jde o <strong>infrastrukturní problém</strong> (síť / GPO), nikoli problém zálohování.
+  </p>
+  <div class="callout rec">
+    <strong>➖ Doporučení:</strong> Řešit odděleně v rámci správy GPO — ověřit dostupnost cílového serveru,
+    případně vyjmout SQL server ze scope tohoto GPO. Návrh zálohování to správně neřeší.
+  </div>
+
+  <!-- 3.4 -->
+  <h3>3.4 Event ID 1803 — TPM Key Exchange Key Not Found ℹ️</h3>
+  <pre>err;1803;Microsoft-Windows-TPM-WMI;System
+"A PK-signed Key Exchange Key (KEK) cannot be found for this device."</pre>
+  <p>
+    Chyba vTPM ve VMware VM (FirmwareManufacturer: VMware, Inc.). Souvisí s BitLockerem / Secure Boot,
+    nikoli se zálohováním databáze.
+  </p>
+  <div class="callout rec">
+    <strong>➖ Doporučení:</strong> Předat týmu správy VMware / bezpečnosti. Ověřit konfiguraci vTPM.
+    Mimo scope návrhu zálohování.
+  </div>
+</section>
+
+<!-- ============ 4. SCHÉMATA ============ -->
+<section id="diagrams">
+  <h2><span class="num">4</span>Schémata</h2>
+
+  <div class="diagram-box">
+    <h3 style="margin-top:0">4.1 Příčinná souvislost — proč došlo k chybě 9002</h3>
+    <div class="mermaid">
+flowchart TD
+    A["FULL Recovery Model"] --> B["Log backup je JEDINÝ způsob,<br/>jak uvolnit místo v logu"]
+    B --> C{"Běží log backup?"}
+    C -->|"ANO<br/>05:30–15:46"| D["✅ Log se recykluje<br/>V pořádku"]
+    C -->|"NE<br/>15:46–05:30"| E["⚠️ Log ROSTE<br/>bez uvolňování"]
+    E --> F["Log dosáhne 100 GB<br/>(strop disku F:)"]
+    F --> G["SQL Server nemůže<br/>zapisovat transakce"]
+    G --> H["❌ Chyba 9002<br/>due to LOG_BACKUP"]
+    H --> I["Noční joby PADAJÍ"]
+    H --> J["Ranní dávka:<br/>213× za 74 s"]
+    style A fill:#e1f5fe,stroke:#0969da
+    style H fill:#cf222e,color:#fff,stroke:#82071e
+    style I fill:#ffebe9,stroke:#cf222e
+    style J fill:#ffebe9,stroke:#cf222e
+    style D fill:#dafbe1,stroke:#1a7f37
+    </div>
+    <p class="caption">Obr. 1 — Řetězec příčin vedoucích k chybě 9002. Návrh útočí přesně na červenou větev (kap. 2.3a).</p>
+  </div>
+
+  <div class="diagram-box">
+    <h3 style="margin-top:0">4.2 Jak návrh řeší problém 9002</h3>
+    <div class="mermaid">
+flowchart LR
+    subgraph DNES["❌ DNEŠNÍ STAV"]
+        direction TB
+        D1["Okno log záloh:<br/>05:30 – 15:46"]
+        D2["Mezera bez záloh:<br/>13 h 44 min"]
+        D3["Výsledek:<br/>9002 každou noc"]
+        D1 --> D2 --> D3
+    end
+    subgraph NAVRH["✅ NÁVRH — Fáze 1"]
+        direction TB
+        N1["Okno log záloh:<br/>00:00 – 23:59, 7 dní"]
+        N2["Interval 15 min / 60 min"]
+        N3["Výsledek:<br/>log recyklovaný, 9002 zmizí"]
+        N1 --> N2 --> N3
+    end
+    DNES ==>|"A1: oprava schedule<br/>BackupMaintenancePlan.Tlog"| NAVRH
+    style DNES fill:#ffebe9,stroke:#cf222e
+    style NAVRH fill:#dafbe1,stroke:#1a7f37
+    style D3 fill:#cf222e,color:#fff
+    style N3 fill:#1a7f37,color:#fff
+    </div>
+    <p class="caption">Obr. 2 — Transformace současného stavu do cílového (příloha A1 návrhu).</p>
+  </div>
+
+  <div class="diagram-box">
+    <h3 style="margin-top:0">4.3 Rozložení událostí podle typu a závažnosti</h3>
+    <div class="mermaid">
+pie showData
+    title Události v logu (2026-08-10)
+    "9002: Log Full" : 213
+    "208: Job Failed" : 8
+    "4098: GPO Failed" : 4
+    "1803: TPM Error" : 1
+    </div>
+    <p class="caption">Obr. 3 — 94 % všech událostí tvoří chyba 9002, kterou návrh řeší přímo.</p>
+  </div>
+
+  <div class="diagram-box">
+    <h3 style="margin-top:0">4.4 Tok dat — co se děje s transakčním logem</h3>
+    <div class="mermaid">
+sequenceDiagram
+    participant U as Uživatel / Job
+    participant SQL as SQL Server
+    participant LOG as Transaction Log<br/>(F: 100 GB)
+    participant BAK as Log Backup<br/>(G:)
+
+    Note over U,BAK: PRACOVNÍ DOBA 05:30–15:46 ✅
+    U->>SQL: INSERT / UPDATE / DELETE
+    SQL->>LOG: Zápis transakce
+    LOG->>BAK: BACKUP LOG každých 15 min
+    BAK-->>LOG: Místo uvolněno (recyklace)
+
+    Note over U,BAK: MIMO OKNO 15:46–05:30 ❌
+    U->>SQL: Noční joby (EDI, M-Files, reports)
+    SQL->>LOG: Zápis transakcí
+    Note over LOG: Log roste: 20 → 50 → 80 GB
+    LOG->>LOG: 100 GB = STROP
+    SQL-xLOG: Další zápis
+    LOG-->>SQL: ❌ 9002 Log Full
+
+    Note over U,BAK: 05:30 ráno
+    BAK->>LOG: První log backup (Tlog2)
+    LOG-->>SQL: Místo uvolněno
+    SQL->>U: Opět funguje
+    </div>
+    <p class="caption">Obr. 4 — Sekvenční diagram: proč log v noci narazí na strop a co se děje ráno.</p>
+  </div>
+
+  <div class="diagram-box">
+    <h3 style="margin-top:0">4.5 Rozhodovací strom — řeší návrh daný problém?</h3>
+    <div class="mermaid">
+flowchart TD
+    START["Nová událost v Event Logu"] --> Q1{"Je to chyba<br/>databáze NAV-LIVE?"}
+    Q1 -->|NE| OUT1["➖ Mimo scope návrhu<br/>(GPO 4098, TPM 1803)"]
+    Q1 -->|ANO| Q2{"Souvisí s<br/>transakčním logem?"}
+    Q2 -->|ANO| Q3{"Příčina =<br/>LOG_BACKUP?"}
+    Q3 -->|ANO| OUT2["✅✅ HLAVNÍ CÍL NÁVRHU<br/>9002 — Fáze 1"]
+    Q3 -->|NE| OUT3["⚠️ Jiná příčina<br/>ACTIVE_TRANSACTION apod."]
+    Q2 -->|NE| Q4{"Souvisí se<br/>zálohováním?"}
+    Q4 -->|ANO| OUT4["✅ Návrh řeší<br/>full / retence / integrita"]
+    Q4 -->|NE| OUT5["⚠️ Částečně<br/>PLE 208, výkon"]
+    style OUT2 fill:#1a7f37,color:#fff
+    style OUT4 fill:#4ac26b,color:#fff
+    style OUT3 fill:#fff1e5,stroke:#bc4c00
+    style OUT5 fill:#fff1e5,stroke:#bc4c00
+    style OUT1 fill:#eaeef2,stroke:#656d76
+    </div>
+    <p class="caption">Obr. 5 — Klasifikace událostí podle toho, zda spadají do scope návrhu.</p>
+  </div>
+
+  <div class="diagram-box">
+    <h3 style="margin-top:0">4.6 Gantt — fáze implementace vs. řešení problémů</h3>
+    <div class="mermaid">
+gantt
+    title Implementace návrhu vs. řešení problémů z logu
+    dateFormat YYYY-MM-DD
+    axisFormat %d.%m.
+
+    section Problémy
+    Chyba 9002 (kritická)      :crit, p1, 2026-08-10, 1d
+    Cache_Warming failed       :active, p2, 2026-08-10, 7d
+    GPO Drive Maps             :p3, 2026-08-10, 3d
+    TPM Error                  :p4, 2026-08-10, 1d
+
+    section Fáze návrhu
+    Fáze 1: okno log záloh     :f1, 2026-08-10, 1d
+    Fáze 2: varianta A/B       :f2, after f1, 7d
+    Fáze 3: 5 min, offsite     :f3, after f2, 21d
+    Fáze 4: indexy, úklid      :f4, after f3, 14d
+
+    section Milníky
+    9002 vyřešena              :milestone, m1, after f1, 0d
+    Monitoring PLE             :milestone, m2, after f2, 0d
+    Kompletní stav             :milestone, m3, after f4, 0d
+    </div>
+    <p class="caption">Obr. 6 — Časový plán: chyba 9002 je vyřešena už po Fázi 1 (dnes).</p>
+  </div>
+</section>
+
+<!-- ============ 5. GAP ANALYSIS ============ -->
+<section id="gap">
+  <h2><span class="num">5</span>Gap Analysis — co návrh řeší a co ne</h2>
+
+  <table>
+    <tr>
+      <th>Problém z logu</th>
+      <th>Návrh řeší</th>
+      <th>Fáze</th>
+      <th>Opatření</th>
+      <th>Mezera</th>
+    </tr>
+    <tr>
+      <td><strong>9002: Log full</strong></td>
+      <td><span class="badge yes">ANO</span></td>
+      <td>1</td>
+      <td>Okno 00:00–23:59, 7 dní</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td><strong>9002: Monitoring</strong></td>
+      <td><span class="badge yes">ANO</span></td>
+      <td>2</td>
+      <td>Alert do ITDashboardu (kap. 11.2)</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td><strong>9002: Prevence</strong></td>
+      <td><span class="badge yes">ANO</span></td>
+      <td>1, 3</td>
+      <td>Sledování <code class="inline">log_reuse_wait_desc</code></td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td><strong>208: Cache Warming</strong></td>
+      <td><span class="badge partial">Nepřímo</span></td>
+      <td>1</td>
+      <td>Pokud příčina = plný log</td>
+      <td>Chybí monitoring PLE</td>
+    </tr>
+    <tr>
+      <td><strong>4098: GPO Drive Maps</strong></td>
+      <td><span class="badge no">NE</span></td>
+      <td>—</td>
+      <td>Mimo scope</td>
+      <td>Správně — řešit v GPO</td>
+    </tr>
+    <tr>
+      <td><strong>1803: TPM Error</strong></td>
+      <td><span class="badge no">NE</span></td>
+      <td>—</td>
+      <td>Mimo scope</td>
+      <td>Správně — řešit s VMware</td>
+    </tr>
+  </table>
+
+  <h3>Celkové hodnocení návrhu</h3>
+  <div class="score">
+    <div class="score-label"><span>Pokrytí kritického problému (9002)</span><span>100 %</span></div>
+    <div class="score-bar"><div class="score-fill" style="width:100%"></div></div>
+  </div>
+  <div class="score">
+    <div class="score-label"><span>Kvalita diagnózy</span><span>100 %</span></div>
+    <div class="score-bar"><div class="score-fill" style="width:100%"></div></div>
+  </div>
+  <div class="score">
+    <div class="score-label"><span>Kvalita řešení</span><span>90 %</span></div>
+    <div class="score-bar"><div class="score-fill" style="width:90%"></div></div>
+  </div>
+  <div class="score">
+    <div class="score-label"><span>Monitoring a prevence</span><span>85 %</span></div>
+    <div class="score-bar"><div class="score-fill" style="width:85%"></div></div>
+  </div>
+  <div class="score">
+    <div class="score-label"><span>Pokrytí souvisejících problémů</span><span>60 %</span></div>
+    <div class="score-bar"><div class="score-fill mid" style="width:60%"></div></div>
+  </div>
+</section>
+
+<!-- ============ 6. ZÁVĚR ============ -->
+<section id="conclusion">
+  <h2><span class="num">6</span>Závěr a doporučené kroky</h2>
+
+  <table>
+    <tr><th>Kategorie</th><th>Hodnocení</th><th>Komentář</th></tr>
+    <tr>
+      <td>Kritický problém (9002)</td>
+      <td>✅ Ano, kompletně</td>
+      <td>Návrh přesně identifikuje příčinu, řeší ji ve Fázi 1, přidává monitoring i prevenci.</td>
+    </tr>
+    <tr>
+      <td>Související problém (Cache Warming)</td>
+      <td>⚠️ Částečně</td>
+      <td>Pokud je příčinou plný log, řeší to Fáze 1. Chybí přímý monitoring PLE.</td>
+    </tr>
+    <tr>
+      <td>Nesouvisející (GPO, TPM)</td>
+      <td>➖ N/A</td>
+      <td>Správně mimo scope — jde o infrastrukturní problémy.</td>
+    </tr>
+  </table>
+
+  <h3>Doporučené další kroky</h3>
+  <div class="callout ok">
+    <strong>🔴 DNES (okamžitě)</strong>
+    Nasadit Fázi 1 — rozšířit okno log záloh (příloha A1). Ověřit, že <code class="inline">log_reuse_wait_desc</code>
+    vrací <code class="inline">NOTHING</code> a chyba 9002 se neopakuje.
+  </div>
+  <div class="callout rec">
+    <strong>🟡 TENTO TÝDEN</strong>
+    Přidat monitoring PLE do ITDashboardu. Analyzovat job <code class="inline">Emergency_Cache_Warming</code>
+    (proč selhává, zda je stále potřeba). Opravit GPO Drive Maps nebo vyjmout SQL server ze scope.
+  </div>
+  <div class="callout rec">
+    <strong>🟢 DO MĚSÍCE</strong>
+    Nasadit Fáze 2 a 3 dle návrhu. TPM chybu předat týmu správy VMware.
+  </div>
+
+  <h3>Ověřovací skript po nasazení Fáze 1</h3>
+  <pre>-- Mělo by vrátit 'NOTHING' nebo 'CHECKPOINT', ne 'LOG_BACKUP'
+SELECT name, recovery_model_desc, log_reuse_wait_desc
+FROM sys.databases
+WHERE name = 'NAV-LIVE';
+
+-- Stáří poslední log zálohy (mělo by být &lt; 90 min)
+SELECT DATEDIFF(MINUTE, MAX(backup_finish_date), GETDATE()) AS log_stari_min
+FROM msdb.dbo.backupset
+WHERE database_name = 'NAV-LIVE' AND type = 'L';</pre>
+</section>
+
+<footer>
+  <p>Analýza incidentů — NAV-LIVE zálohování v2 | Vygenerováno 10. 8. 2026 | Zdroj: ITDashboard Event Log export</p>
+  <p>Diagramy vykresleny pomocí Mermaid.js — pro tisk použijte Ctrl+P</p>
+</footer>
+
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'default',
+    securityLevel: 'loose',
+    flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+    sequence: { useMaxWidth: true, mirrorActors: false },
+    gantt: { useMaxWidth: true }
+  });
+</script>
+</body>
+</html>

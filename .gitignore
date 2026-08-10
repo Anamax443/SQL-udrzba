@@ -1,0 +1,25 @@
+# Zalohy a datove soubory - nikdy do gitu
+*.bak
+*.trn
+*.mdf
+*.ldf
+*.ndf
+
+# Tajne veci
+*.key
+*.pfx
+*.p12
+secrets.*
+SECRETS.local.*
+*.env
+.env*
+
+# Docasne
+*.tmp
+*.log
+~$*
+Thumbs.db
+desktop.ini
+
+# Vnorene klony
+*/.git/

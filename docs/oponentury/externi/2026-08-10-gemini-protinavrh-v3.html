@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protinávrh: Přepracovaná strategie zálohování NAV-LIVE (v3)</title>
+    <style>
+        :root {
+            --primary: #1e293b;
+            --primary-accent: #2563eb;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+            --info-bg: #eff6ff;
+            --info-border: #bfdbfe;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border-color);
+        }
+
+        header {
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 1.875rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            line-height: 1.25;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            background-color: #f1f5f9;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .meta-item span {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        h2 {
+            font-size: 1.35rem;
+            color: var(--primary);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.4rem;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            color: var(--primary-accent);
+            margin-top: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        p, ul, ol {
+            margin-bottom: 1rem;
+        }
+
+        ul, ol {
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.35rem;
+        }
+
+        /* Alert Box */
+        .alert-box {
+            background-color: var(--info-bg);
+            border-left: 4px solid var(--primary-accent);
+            padding: 1rem 1.25rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1.5rem 0;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.925rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        /* Code Blocks */
+        pre {
+            background-color: #0f172a;
+            color: #f8fafc;
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.875rem;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+        }
+
+        /* Status Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-red { background-color: #fee2e2; color: #991b1b; }
+        .badge-amber { background-color: #fef3c7; color: #92400e; }
+        .badge-green { background-color: #d1fae5; color: #065f46; }
+
+        /* Checklist */
+        .checklist {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .checklist li {
+            position: relative;
+            padding-left: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .checklist li::before {
+            content: "☐";
+            position: absolute;
+            left: 0.5rem;
+            color: var(--primary-accent);
+            font-weight: bold;
+        }
+
+        /* Signatures */
+        .signature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px dashed var(--border-color);
+        }
+
+        .signature-line {
+            border-bottom: 1px solid var(--text-main);
+            margin-top: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        @media print {
+            body { background: #fff; padding: 0; }
+            .container { box-shadow: none; border: none; padding: 0; max-width: 100%; }
+            pre { white-space: pre-wrap; word-break: break-all; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Protinávrh: Přepracovaná strategie zálohování a obnovy NAV-LIVE (v3)</h1>
+        <div class="meta-grid">
+            <div class="meta-item">
+                <span>Předmět</span>
+                Reakce na oponenturu v2
+            </div>
+            <div class="meta-item">
+                <span>Cílový systém</span>
+                NAV-LIVE (BC 14) / SQL 2017
+            </div>
+            <div class="meta-item">
+                <span>Cílové RPO</span>
+                &lt; 15 minut
+            </div>
+            <div class="meta-item">
+                <span>Cílové RTO</span>
+                &lt; 4 hodiny (vč. aplikace)
+            </div>
+        </div>
+    </header>
+
+    <section>
+        <h2>1. Exekutivní shrnutí a změna přístupu</h2>
+        <p>Na základě zjištěných rizik v oponentuře (riziko zaplnění disku, neověřené existence diferenciálních záloh, možnost přepsání schedule z GUI SSMS) se mění dosavadní přístup <strong>z „doporučení a okamžitého nasazení masivních záloh“ na třífázový princip: Změřit → Zabezpečit → Rozšířit.</strong></p>
+        
+        <div class="alert-box">
+            Doporučení masivní denní full zálohy (Varianta A) se <strong>pozastavuje</strong> do získání tvrdých dat o diskové kapacitě. Místo opravy plánovače v Maintenance Planu se zálohování transakčního logu vyjme do samostatného T-SQL jobu, čímž se eliminují tišeběžící přepisy nastavení.
+        </div>
+    </section>
+
+    <section>
+        <h2>2. Fázovaný prováděcí plán</h2>
+
+        <h3>Fáze 0: Okamžitá diagnostika a stabilizace (Dnešek, do 1 hodiny)</h3>
+        <p>Tato fáze vyžaduje nulové finanční náklady, má minimální riziko a řeší bezprostřední hrozbu opakování chyby 9002.</p>
+        
+        <ul>
+            <li><strong>Krok 0.1 — Zjištění reálného stavu infrastruktury (15 min):</strong> Spuštění diagnostických dotazů pro ověření volného místa na discích (<code>xp_fixeddrives</code>), limitu logu (<code>max_size</code>, autogrow) a existence <code>DIFF</code> záloh za posledních 30 dní v <code>msdb.dbo.backupset</code>.</li>
+            <li><strong>Krok 0.2 — Vyčlenění T-Log záloh do samostatného SQL Agent Jobu (10 min):</strong> Vytvoření samostatného jobu <code>BC_Backup_TLog_Continuous</code> plánovaného na 24/7 každých 15 minut. Imunní vůči uložení v SSMS Designeru.</li>
+        </ul>
+
+<pre><code>BACKUP LOG [NAV-LIVE] 
+TO DISK = N'G:\Backup\NAV-LIVE\TLog\NAV-LIVE_Log_Current.trn' 
+WITH COMPRESSION, CHECKSUM, CONTINUE_AFTER_ERROR;</code></pre>
+
+        <ul>
+            <li><strong>Krok 0.3 — Zapnutí základního monitoringu (25 min):</strong> E-mailový alert při absenci úspěšné zálohy logu déle než <strong>60 minut</strong>.</li>
+        </ul>
+
+        <h3>Fáze 1: Měření a prověrka kontextu (1. týden)</h3>
+        <p>Po dobu 7 dnů poběží systém ve stabilizovaném režimu Fáze 0. Během této doby proběhne:</p>
+        <ol>
+            <li><strong>Měření přírůstku logu:</strong> Sběr dat z <code>msdb.dbo.backupset</code> za celé období (identifikace nočních operací / indexace).</li>
+            <li><strong>Audit zálohování na úrovni hypervizoru (VMware):</strong> Kontrola, zda existuje záloha celého VM (např. Veeam) a zda nepoužívá Application-Aware processing, který by neplánovaně zasahoval do logu.</li>
+            <li><strong>Prověrka oddělení disků a přístupových práv:</strong> Kontrola LUNů na diskovém poli, restrikce přístupu k zálohám a řešení šifrování z pohledu GDPR.</li>
+        </ol>
+
+        <h3>Fáze 2: Architektura zálohování DB a strategie retence (Po naměření dat)</h3>
+        <p>Na základě naměřených dat bude zavedeno striktní fyzické oddělení svazků:</p>
+        
+        <ul>
+            <li><strong>Svazek A (Full & Diff DB):</strong> Denní FULL / Týdenní DIFF (retence nastavená dle změřené kapacity).</li>
+            <li><strong>Svazek B (Transakční log):</strong> Průběžný T-Log (24/7, á 15 min). Zaplnění disku s FULL zálohami nesmí zastavit uvolňování logu.</li>
+            <li><strong>Generátor obnovy:</strong> Nasazení T-SQL skriptu v <code>msdb</code> pro automatické vygenerování <code>RESTORE LOG</code> sekvence v případě havárie.</li>
+        </ul>
+
+        <h3>Fáze 3: Havarijní připravenost a Log Shipping (Výhled)</h3>
+        <p>Pro zajištění vysoké dostupnosti a Disaster Recovery (DR) bude zpracována studie proveditelnosti pro <strong>SQL Server Log Shipping</strong>:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Parametr</th>
+                    <th>Pouze zálohy na disk (Původní návrh)</th>
+                    <th>Log Shipping na záložní server (Protinávrh)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>RPO (Ztráta dat)</strong></td>
+                    <td>~15 minut</td>
+                    <td>~15 minut</td>
+                </tr>
+                <tr>
+                    <td><strong>RTO (Doba obnovy)</strong></td>
+                    <td>4–8 hodin (manuální restore 800 GB)</td>
+                    <td>15–30 minut (přepnutí na sekundár)</td>
+                </tr>
+                <tr>
+                    <td><strong>Riziko HW selhání</strong></td>
+                    <td><span class="badge badge-red">Vysoké</span> (závislost na 1 serveru)</td>
+                    <td><span class="badge badge-green">Nízké</span> (druhá nezávislá kopie)</td>
+                </tr>
+                <tr>
+                    <td><strong>Využití pro reporting</strong></td>
+                    <td><span class="badge badge-red">Nelze</span></td>
+                    <td><span class="badge badge-green">Kopie přístupná v READ-ONLY</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2>3. Akceptační protokol obnovy (Definice "Hotovo")</h2>
+        <p>Obnova se nepovažuje za dokončenou přechodem databáze do stavu <code>ONLINE</code>. Test obnovy na testovacím prostředí musí úspěšně splnit tento kontrolní seznam:</p>
+
+        <ul class="checklist">
+            <li>Databáze <code>NAV-LIVE</code> je ve stavu <code>ONLINE</code> a bez konzistenčních chyb (<code>DBCC CHECKDB</code>).</li>
+            <li>BC Service Tier (<code>B-S-W-NAV-01</code>) se úspěšně připojil k databázi.</li>
+            <li>Uživatel se přihlásil do klienta Business Central.</li>
+            <li>Poslední zaúčtovaný doklad odpovídá očekávanému času obnovy (Point-in-Time).</li>
+            <li>Testovací zaúčtování prodejní faktury proběhlo bez chyby číselných řad.</li>
+            <li>Aplikační úlohy (Job Queue) v BC přešly do stavu <em>Ready</em> (nezůstaly viset v <em>In Process</em>).</li>
+            <li>Integrace na M-Files a EDI složky jsou plně funkční.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>4. Matice odpovědností (RACI)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Úkol / Proces</th>
+                    <th>Responsible</th>
+                    <th>Accountable</th>
+                    <th>Consulted</th>
+                    <th>Informed</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Exekuce Kroků 0.1–0.3</td>
+                    <td>SQL Administrator</td>
+                    <td>Vedoucí IT</td>
+                    <td>Partner BC</td>
+                    <td>Vývojový tým</td>
+                </tr>
+                <tr>
+                    <td>Vyhodnocení dat Fáze 1</td>
+                    <td>SQL Administrator</td>
+                    <td>Vedoucí IT</td>
+                    <td>Správce Infra</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>Schválení finální Varianty DB</td>
+                    <td>Vedoucí IT</td>
+                    <td>Finanční ředitel</td>
+                    <td>Partner BC</td>
+                    <td>Uživatelé NAV</td>
+                </tr>
+                <tr>
+                    <td>Test obnovy a akceptace</td>
+                    <td>BC Specialist</td>
+                    <td>Vedoucí IT</td>
+                    <td>Klíčoví uživatelé</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>Udržování Runbooku obnovy</td>
+                    <td>SQL Administrator</td>
+                    <td>Vedoucí IT</td>
+                    <td>-</td>
+                    <td>IT Service Desk</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2>5. Porovnání návrhů</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Oblast</th>
+                    <th>Původní Návrh (v2)</th>
+                    <th>Oponentura</th>
+                    <th>Protinávrh (v3)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Kapacitní rozhodnutí</strong></td>
+                    <td>Doporučuje Variantu A ihned</td>
+                    <td>Varuje před zaplněním disku</td>
+                    <td><strong>Zmrznutí Fáze 2, nejdříve měření 7 dní</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Způsob zálohy T-Log</strong></td>
+                    <td>Úprava v Maintenance Planu</td>
+                    <td>Varuje před přepsáním z GUI</td>
+                    <td><strong>Samostatný T-SQL Agent Job</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Ukládání záloh</strong></td>
+                    <td>Vše na stejný svazek G:</td>
+                    <td>Riziko výpadku obou typů záloh</td>
+                    <td><strong>Striktní oddělení FULL a T-Log svazků</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Rozsah obnovy</strong></td>
+                    <td>Pouze SQL Databáze</td>
+                    <td>Upozorňuje na aplikaci</td>
+                    <td><strong>Kompletní akceptační protokol BC</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Disaster Recovery</strong></td>
+                    <td>Neřešeno</td>
+                    <td>Navrhuje Log Shipping</td>
+                    <td><strong>Zapracována studie Log Shippingu</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2>6. Schvalovací doložka</h2>
+        <p>Tento protinávrh nahrazuje předchozí verzi <code>NAV-LIVE-zalohovani-navrh-v2.md</code> a stává se závazným podkladem pro realizaci po podpisu odpovědných osob.</p>
+
+        <div class="signature-grid">
+            <div class="signature-block">
+                <strong>Za IT Infrastrukturu:</strong>
+                <div class="signature-line"></div>
+                Datum:
+            </div>
+            <div class="signature-block">
+                <strong>Za Aplikační podporu BC:</strong>
+                <div class="signature-line"></div>
+                Datum:
+            </div>
+        </div>
+    </section>
+</div>
+
+</body>
+</html>

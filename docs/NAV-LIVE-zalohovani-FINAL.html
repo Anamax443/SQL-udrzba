@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NAV-LIVE — zálohování a obnova | Finální konsolidované zadání</title>
+<style>
+:root{
+  --bg:#f7f8fa; --card:#fff; --ink:#1a1f2b; --ink2:#5a6478; --line:#dde1e9;
+  --accent:#1d4ed8; --accent-bg:#eef3ff;
+  --red:#c0273c; --red-bg:#fdeef0;
+  --amber:#a1620a; --amber-bg:#fdf3e3;
+  --green:#136c46; --green-bg:#e8f6ef;
+  --mono:"Cascadia Mono",Consolas,"SF Mono",monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0f1319; --card:#161b24; --ink:#e6eaf2; --ink2:#9aa5b8; --line:#2a3140;
+    --accent:#6f9bff; --accent-bg:#182238;
+    --red:#ff8a99; --red-bg:#2c1620;
+    --amber:#ffc16b; --amber-bg:#2b2114;
+    --green:#7fdcae; --green-bg:#12291f;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.62;padding:2rem 1rem 5rem}
+.wrap{max-width:1060px;margin:0 auto}
+
+header.head{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:2rem;margin-bottom:1.5rem}
+header.head h1{font-size:1.75rem;line-height:1.25;margin-bottom:.4rem}
+header.head .sub{color:var(--ink2);margin-bottom:1.2rem}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.7rem}
+.fact{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:.6rem .8rem}
+.fact b{display:block;font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--ink2);margin-bottom:.15rem}
+
+.now{background:var(--red-bg);border:1px solid var(--red);border-left-width:6px;border-radius:10px;padding:1.2rem 1.4rem;margin:1.5rem 0}
+.now h2{border:0;margin:0 0 .5rem;font-size:1.15rem;color:var(--red);padding:0}
+
+h2{font-size:1.3rem;margin:2.6rem 0 .9rem;padding-bottom:.45rem;border-bottom:2px solid var(--line)}
+h2 .n{display:inline-block;min-width:1.7rem;height:1.7rem;line-height:1.7rem;text-align:center;background:var(--accent);color:#fff;border-radius:50%;font-size:.9rem;margin-right:.5rem}
+h3{font-size:1.05rem;margin:1.5rem 0 .5rem}
+h4{font-size:.95rem;margin:1.1rem 0 .4rem;color:var(--ink2)}
+p,ul,ol{margin-bottom:.85rem}
+ul,ol{padding-left:1.4rem}
+li{margin-bottom:.28rem}
+
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;background:var(--card)}
+th,td{border:1px solid var(--line);padding:.55rem .7rem;text-align:left;vertical-align:top}
+th{background:var(--accent-bg);font-weight:600;font-size:.78rem;letter-spacing:.03em;text-transform:uppercase;color:var(--ink2)}
+td code{font-size:.85em}
+
+pre{background:#0d1117;color:#e6edf3;padding:1rem 1.1rem;border-radius:9px;overflow-x:auto;font-family:var(--mono);font-size:.82rem;line-height:1.5;margin:.8rem 0;border:1px solid #232a36}
+code{font-family:var(--mono);background:var(--accent-bg);padding:.12rem .35rem;border-radius:4px;font-size:.87em}
+pre code{background:none;padding:0;color:inherit}
+
+.box{border-radius:9px;padding:.9rem 1.1rem;margin:1rem 0;border-left:5px solid}
+.box b:first-child{display:block;margin-bottom:.25rem}
+.box.i{background:var(--accent-bg);border-color:var(--accent)}
+.box.w{background:var(--amber-bg);border-color:var(--amber)}
+.box.d{background:var(--red-bg);border-color:var(--red)}
+.box.k{background:var(--green-bg);border-color:var(--green)}
+
+.tag{display:inline-block;padding:.1rem .5rem;border-radius:999px;font-size:.7rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;white-space:nowrap}
+.t-r{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
+.t-a{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber)}
+.t-g{background:var(--green-bg);color:var(--green);border:1px solid var(--green)}
+.t-n{background:var(--bg);color:var(--ink2);border:1px solid var(--line)}
+
+.steps{list-style:none;padding:0;counter-reset:s}
+.steps>li{counter-increment:s;position:relative;padding:1rem 1rem 1rem 3.2rem;background:var(--card);border:1px solid var(--line);border-radius:10px;margin-bottom:.7rem}
+.steps>li::before{content:counter(s);position:absolute;left:1rem;top:1rem;width:1.6rem;height:1.6rem;line-height:1.6rem;text-align:center;border-radius:50%;background:var(--accent);color:#fff;font-size:.82rem;font-weight:700}
+.steps>li .st{font-weight:600;display:block;margin-bottom:.25rem}
+.steps>li .meta{font-size:.8rem;color:var(--ink2)}
+
+.chk{list-style:none;padding:0}
+.chk li{padding-left:1.7rem;position:relative;margin-bottom:.35rem}
+.chk li::before{content:"☐";position:absolute;left:.2rem;font-size:1rem;color:var(--accent)}
+
+.toc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:1.1rem 1.3rem}
+.toc ol{margin:0;padding-left:1.3rem}
+.toc a{color:var(--accent);text-decoration:none}
+.toc a:hover{text-decoration:underline}
+
+.scroll{overflow-x:auto}
+footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid var(--line);color:var(--ink2);font-size:.83rem}
+
+@media print{
+  body{background:#fff;color:#000;padding:0}
+  pre{background:#f4f4f4;color:#000;border:1px solid #ccc}
+  .steps>li,table,header.head,.toc{break-inside:avoid}
+  h2{break-after:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="head">
+  <h1>NAV-LIVE — zálohování a obnova</h1>
+  <p class="sub">Finální konsolidované zadání k realizaci. Nahrazuje všechny předchozí návrhy, protinávrhy a oponentury — je úplné samo o sobě.</p>
+  <div class="facts">
+    <div class="fact"><b>Databáze</b>NAV-LIVE · Business Central 14</div>
+    <div class="fact"><b>Server</b>B-S-W-SQL-01 · SQL Server 2017</div>
+    <div class="fact"><b>Velikost</b>800 GB · 57 uživatelů</div>
+    <div class="fact"><b>RPO dnes v noci</b>až 13 h 44 min</div>
+    <div class="fact"><b>RPO po opravě</b>15 minut</div>
+    <div class="fact"><b>Datum</b>10. 8. 2026</div>
+  </div>
+</header>
+
+<div class="now">
+  <h2>⚠ Stav k této chvíli</h2>
+  <p><code>BackupMaintenancePlan.Tlog</code> má stále okno <strong>05:30–15:46</strong>. Od 15:46 do 5:30 se transakční log nezálohuje, nemá se jak uvolňovat a naráží na strop. <strong>Dnes v noci se scénář zopakuje potřetí</strong> — poprvé 23. 7., podruhé dnes ráno.</p>
+  <p style="margin-bottom:0">Kapitola <a href="#krok">6 — Postup</a> to řeší za 30 minut a každý krok je vratný jedním příkazem.</p>
+</div>
+
+<nav class="toc">
+  <strong>Obsah</strong>
+  <ol>
+    <li><a href="#cil">Cíl a jak se měří</a></li>
+    <li><a href="#dukazy">Co je doloženo a co ne</a></li>
+    <li><a href="#pricina">Příčina — proč log přeteče</a></li>
+    <li><a href="#zadani">Původní logika zadání</a></li>
+    <li><a href="#cilovy">Cílový stav</a></li>
+    <li><a href="#krok">Postup realizace</a></li>
+    <li><a href="#monitoring">Monitoring</a></li>
+    <li><a href="#obnova">Postupy obnovy</a></li>
+    <li><a href="#rozhodnuti">Otevřená rozhodnutí</a></li>
+    <li><a href="#rejstrik">Rejstřík nálezů</a></li>
+  </ol>
+</nav>
+
+<!-- ============================================ -->
+<h2 id="cil"><span class="n">1</span>Cíl a jak se měří</h2>
+
+<p>Cíl zadavatele: <strong>umět obnovit firmu k libovolnému okamžiku s co nejmenší ztrátou práce.</strong> Měří se dvěma čísly.</p>
+
+<table>
+<tr><th>Ukazatel</th><th>Význam</th><th>Dnes</th><th>Po kroku 6</th><th>Cíl</th></tr>
+<tr><td><strong>RPO</strong></td><td>kolik práce ztratíme</td><td>15 min přes den<br><span style="color:var(--red)">až 13 h 44 min v noci</span></td><td>15 min nepřetržitě</td><td>5 min v pracovní době</td></tr>
+<tr><td><strong>RTO</strong></td><td>jak dlouho firma stojí</td><td>neměřeno</td><td>neměřeno</td><td>&lt; 4 h (potvrdí vedení)</td></tr>
+</table>
+
+<div class="box i">
+<b>Odkud se bere těch 13 h 44 min</b>
+Poslední záloha logu je v 15:46, další v 5:30. Po celou tu dobu existuje veškerá odvedená práce <strong>v jediné kopii</strong> — v souboru <code>NAV_LIVE_Log.ldf</code> na disku F:. Ztráta toho svazku v noci = ztráta všeho od 15:46.
+</div>
+
+<p><strong>Co RPO naopak neomezuje:</strong> přesnost obnovy. Záloha v 5:30 obsahuje i všechny transakce od 15:46, takže obnovit stav na 02:00 v noci <em>jde</em> pomocí <code>STOPAT</code>. Granularita je vteřinová bez ohledu na frekvenci. Frekvence rozhoduje jen o tom, <strong>kolik práce existuje jen v jedné kopii</strong>.</p>
+
+<!-- ============================================ -->
+<h2 id="dukazy"><span class="n">2</span>Co je doloženo a co ne</h2>
+
+<p>Rozlišení, které v předchozích dokumentech chybělo. Podle sloupce vpravo se pozná, co je zjištění a co domněnka.</p>
+
+<div class="scroll">
+<table>
+<tr><th>Tvrzení</th><th>Zdroj</th><th>Stav</th></tr>
+<tr><td><code>Tlog</code> běží 05:30–15:46, dny Ne + Po–Pá (bez soboty)</td><td>GUI + <code>msdb</code></td><td><span class="tag t-g">doloženo</span></td></tr>
+<tr><td><code>Tlog2</code> běží jen v sobotu, 05:30–16:00 hodinově</td><td>GUI</td><td><span class="tag t-g">doloženo</span></td></tr>
+<tr><td><code>date_modified</code> schedule = 2025-01-10 → oprava z 23. 7. nebyla nikdy nasazena</td><td><code>msdb</code></td><td><span class="tag t-g">doloženo</span></td></tr>
+<tr><td>Chyby 9002 dne 10. 8. mezi 03:33 a 03:34 UTC</td><td>Event Log</td><td><span class="tag t-g">doloženo</span></td></tr>
+<tr><td><code>shrink_log</code> dělal <code>SHRINKFILE(NAV_LIVE_Log,10)</code> v neděli 5:00 — <strong>vypnuto</strong></td><td>GUI + <code>msdb</code></td><td><span class="tag t-g">doloženo</span></td></tr>
+<tr><td>Poslední full záloha 09. 8. 18:43 (plán ji má na 00:30)</td><td>GUI</td><td><span class="tag t-g">doloženo</span></td></tr>
+<tr><td>Strop logu <code>max_size</code> = <strong>97,7 GB a soubor už na něm je</strong></td><td>měření 12:48</td><td><span class="tag t-g">doloženo</span></td></tr>
+<tr><td>V noci vzniká <strong>~94 GB logu</strong> (z 3,3 GB na 97,7 GB)</td><td>měření 12:48</td><td><span class="tag t-g">doloženo</span></td></tr>
+<tr><td>Diferenciální zálohy existují a běží denně v 01:30</td><td>měření 12:48</td><td><span class="tag t-g">doloženo</span></td></tr>
+<tr><td>Denní full pro test <strong>NENÍ <code>COPY_ONLY</code></strong> — past je otevřená</td><td>měření 12:48</td><td><span class="tag t-r">potvrzený nález</span></td></tr>
+<tr><td>Virtuál se zálohuje — VSS full denně v 18:43, <code>COPY_ONLY</code></td><td>měření 12:48</td><td><span class="tag t-g">doloženo</span></td></tr>
+<tr><td>Volné místo: G: 1 459 GB, F: 391 GB, E: 280 GB, D: 984 GB</td><td>měření 12:48</td><td><span class="tag t-g">doloženo</span></td></tr>
+<tr><td>Edice = <strong>Enterprise</strong>, Instant File Initialization <strong>zapnuto</strong></td><td>měření 12:48</td><td><span class="tag t-g">doloženo</span></td></tr>
+<tr><td>VLF = 435 — v pořádku, náprava netřeba</td><td>měření 12:48</td><td><span class="tag t-g">doloženo</span></td></tr>
+<tr><td>Skutečný rozsah incidentu 9002</td><td>—</td><td><span class="tag t-r">neznámo</span></td></tr>
+<tr><td>Kam ukládá VSS záloha a je mimo server?</td><td>—</td><td><span class="tag t-r">neznámo</span></td></tr>
+<tr><td>Retence složky <code>G:\Backup\NAV-TEST-USERS\</code></td><td>—</td><td><span class="tag t-r">neznámo</span></td></tr>
+<tr><td>Je G: jiné fyzické pole než E: a F:?</td><td>—</td><td><span class="tag t-r">neznámo</span></td></tr>
+<tr><td>Obnova k časovému bodu funguje</td><td>—</td><td><span class="tag t-r">nikdy netestováno</span></td></tr>
+</table>
+</div>
+
+<h3 id="mereni">2.3 Naměřený stav — 10. 8. 2026, 12:48</h3>
+
+<div class="box d">
+<b>🔴 Potvrzeno: past s <code>COPY_ONLY</code> je otevřená</b>
+Denní full záloha ve 02:00 do <code>G:\Backup\NAV-TEST-USERS\</code> má <code>is_copy_only = <strong>0</strong></code>. Každý den tedy <strong>přesouvá základ pro diferenciální zálohy</strong> na soubor, který slouží k obnově testu.
+</div>
+
+<p>Denní sled záloh, jak skutečně běží:</p>
+
+<div class="scroll">
+<table>
+<tr><th>Čas</th><th>Typ</th><th>Kam</th><th><code>copy_only</code></th><th>Účet</th><th>Dopad na řetěz</th></tr>
+<tr><td>01:30</td><td>DIFF</td><td><code>G:\Backup\NAV-LIVE\NAV-LIVE\</code></td><td>0</td><td><code>gmsa-SQL$</code></td><td>počítá se od <strong>včerejší</strong> 02:00 full</td></tr>
+<tr><td>02:00 (Út–So)</td><td><strong>FULL</strong></td><td><code>G:\Backup\NAV-TEST-USERS\</code></td><td><strong>0</strong></td><td><code>gmsa-SQL$</code></td><td><strong>posouvá diff base</strong></td></tr>
+<tr><td>~01:30 (Ne)</td><td>FULL</td><td><code>G:\Backup\NAV-LIVE\NAV-LIVE\</code></td><td>0</td><td><code>gmsa-SQL$</code></td><td>týdenní kotva</td></tr>
+<tr><td>18:43 (denně)</td><td>FULL</td><td>VSS snapshot (GUID)</td><td><strong>1</strong></td><td><code>B-S-W-SQL-01$</code></td><td>neškodí — správně</td></tr>
+</table>
+</div>
+
+<p><strong>Důsledek:</strong> diferenciální záloha z úterý až soboty je použitelná <em>jen s full zálohou z předchozího dne, která leží ve složce pro obnovu testu</em>. Řetěz obnovy tedy přechází mezi dvěma složkami s možná různou retencí. Nedělní týdenní full je základem jen pro nedělní a pondělní diff — od úterý ho nahradí testovací full.</p>
+
+<div class="box k">
+<b>✅ Odpověď na nejdůležitější otevřenou otázku: virtuál se zálohuje</b>
+Denně v ~18:43 běží full záloha pod účtem počítače <code>AXINETWORK\B-S-W-SQL-01$</code> se zařízením ve tvaru GUID — to je <strong>VSS snapshot, tedy záloha na úrovni virtuálu s application-aware zpracováním</strong>. Je správně označená <code>COPY_ONLY</code>, takže do řetězu nezasahuje.
+<br><br>
+Zbývá zjistit <strong>kam ukládá a jestli je to mimo tento server</strong> — pokud ano, je to hledaná kopie č. 2 a možná i č. 3.
+</div>
+
+<h4>Co měření ukázalo dobrého</h4>
+
+<div class="scroll">
+<table>
+<tr><th>Zjištění</th><th>Hodnota</th><th>Význam</th></tr>
+<tr><td>Volné místo na G:</td><td><strong>1 459 GB</strong></td><td>varianta s denní full je finančně i kapacitně reálná</td></tr>
+<tr><td>Edice SQL Serveru</td><td><strong>Enterprise, Core-based</strong></td><td>dostupné <code>RESTORE PAGE</code>, online rebuild indexů, Availability Groups</td></tr>
+<tr><td>Instant File Initialization</td><td><strong>zapnuto</strong></td><td>obnova 683GB datového souboru se nebude nulovat — velká úspora RTO</td></tr>
+<tr><td>Počet VLF</td><td><strong>435</strong></td><td>v pořádku; škoda po <code>shrink_log</code> je malá, náprava netřeba</td></tr>
+<tr><td>Přírůstek souborů</td><td>4 GB, pevně</td><td>správně nastaveno, ne procenta</td></tr>
+<tr><td>Servisní účet</td><td><code>gmsa-SQL$</code></td><td>group managed service account — správná praxe</td></tr>
+<tr><td>Datový soubor</td><td>683,6 GB / strop 878,9 GB, využito 565,1 GB</td><td>do zdi daleko, E: má 280 GB volných</td></tr>
+</table>
+</div>
+
+<h4>Log je na svém stropu</h4>
+
+<pre><code>NAV_LIVE_Log   size 97.7 GB   max_size 97.7 GB   pouzito 3.3 GB   F:\Log\NAV-LIVE\NAV_LIVE_1.ldf</code></pre>
+
+<p>Soubor logu <strong>už narostl na maximum a dál růst nemůže</strong>. Teď je využitý ze 3,4 % — protože je poledne a zálohy logu běží. Každou noc se naplní z ~3 GB na 97,7 GB, tedy <strong>~94 GB transakčního logu za noc</strong>. Odhad z kapitoly 4 je tím potvrzen měřením: denní provoz 57 lidí dělá ~0,5 GB/h, noc dělá patnáctinásobek.</p>
+
+<div class="box w">
+<b>Zvýšení stropu logu není řešení</b>
+F: má 391 GB volných, takže by šlo strop zvednout. Odsunulo by to problém o pár nocí a nezměnilo by nic na tom, že práce od 15:46 existuje v jediné kopii. Strop není příčina — je to pojistka, která zafungovala.
+</div>
+
+<h3>2.1 Rozsah incidentu je větší, než ukazují exporty</h3>
+
+<p>Oba exporty z ITDashboardu mají <strong>přesně 300 řádků</strong>. To je strop exportu, ne konec události.</p>
+
+<div class="scroll">
+<table>
+<tr><th>Export</th><th>Řádků</th><th>9002</th><th>208</th><th>ostatní</th><th>Nejstarší záznam</th></tr>
+<tr><td><code>…202608100704…</code></td><td><strong>300</strong></td><td>286</td><td>9</td><td>5</td><td>03:33:<strong>18.606</strong>Z</td></tr>
+<tr><td><code>…202608100928…</code></td><td><strong>300</strong></td><td>275</td><td>17</td><td>8</td><td>03:33:<strong>20.956</strong>Z</td></tr>
+</table>
+</div>
+
+<div class="box d">
+<b>Důkaz stropu</b>
+Novější export sahá dál do rána, ale jeho <strong>nejstarší</strong> záznam je o 2,35 sekundy <em>mladší</em> než u staršího exportu. Jedenáct novějších událostí (8× job 208 + 3× GPO) vytlačilo z okna přesně jedenáct nejstarších chyb 9002: 286 − 275 = 11.
+<br><br>
+<strong>Důsledek:</strong> dávka 9002 pokračuje před 03:33:18Z a nevíme, jak daleko. Věta „incident trval 74 sekund", která zazněla ve dvou externích analýzách, je artefakt exportu. Podle vzorce z 23. 7. běží chyba celou noc a poslední je v ~5:33, kdy ranní záloha log uvolní.
+</div>
+
+<h3>2.2 Druhá závada, která běží právě teď</h3>
+
+<p>Job <code>Emergency_Cache_Warming</code> (schedule <code>Every_5_Min_PLE_Check</code>, krok <code>Check_PLE_And_Warm2</code>) selhal v okně 05:30–10:50 místního času <strong>sedmnáctkrát</strong> a selhává dál.</p>
+
+<div class="scroll">
+<table>
+<tr><th>Spuštěn</th><th>Selhal po</th><th>Spuštěn</th><th>Selhal po</th></tr>
+<tr><td>08:35</td><td>10 min 02 s</td><td>09:55</td><td>10 min 02 s</td></tr>
+<tr><td>08:50</td><td>5 min 56 s</td><td>10:10</td><td>5 min 56 s</td></tr>
+<tr><td>09:15</td><td>10 min 01 s</td><td>10:35</td><td>10 min 01 s</td></tr>
+<tr><td>09:30</td><td>5 min 56 s</td><td>10:50</td><td>5 min 51 s</td></tr>
+</table>
+</div>
+
+<p>Job běží <strong>6 až 10 minut při pětiminutovém intervalu</strong> — překrývá se sám se sebou. Pravidelných 10:02 vypadá na timeout 600 s. V kódu kroku stojí:</p>
+
+<pre><code>DECLARE @Threshold INT = 3000;  -- Zvýšeno z 300!</code></pre>
+
+<p>Někdo práh Page Life Expectancy zvedl desetinásobně, takže job považuje cache za studenou téměř vždy. Je to náplast na tlak na paměť — a ta náplast nefunguje. <strong>Nesouvisí se zálohováním</strong>, ale je to důkaz, že existence SQL Agent jobu neznamená funkční hlídání: 17 selhání za 5 hodin si nikdo nevšiml.</p>
+
+<!-- ============================================ -->
+<h2 id="pricina"><span class="n">3</span>Příčina — proč log přeteče</h2>
+
+<div class="box i">
+<b>Jediná věta, na které stojí celý dokument</b>
+Ve FULL recovery je <strong>záloha transakčního logu jediný mechanismus, kterým se v logu uvolňuje místo.</strong> Není to volitelná ochrana dat — je to údržba.
+</div>
+
+<pre><code>transakce → zápis do logu → místo se neuvolní → log roste
+   → log narazí na strop → SQL odmítá zápisy → chyba 9002
+   → noční zpracování padá → ráno se dohledává, co neproběhlo</code></pre>
+
+<p>Chybová hláška to říká přesně:</p>
+
+<pre><code>The transaction log for database 'NAV-LIVE' is full <b>due to 'LOG_BACKUP'</b>.</code></pre>
+
+<p>Část <code>due to 'LOG_BACKUP'</code> neznamená „došlo místo na disku". Znamená <em>„log nejde uvolnit, protože čeká na zálohu logu, která nepřišla."</em></p>
+
+<p>Stav se kdykoli ověří:</p>
+
+<pre><code>SELECT log_reuse_wait_desc FROM sys.databases WHERE name = 'NAV-LIVE';</code></pre>
+
+<table>
+<tr><th>Hodnota</th><th>Význam</th></tr>
+<tr><td><code>NOTHING</code></td><td>v pořádku, log má co recyklovat</td></tr>
+<tr><td><code>LOG_BACKUP</code></td><td>čeká na zálohu logu — náš případ</td></tr>
+<tr><td><code>ACTIVE_TRANSACTION</code></td><td>drží ho dlouhá otevřená transakce</td></tr>
+<tr><td><code>ACTIVE_BACKUP_OR_RESTORE</code></td><td>právě běží záloha (přechodné, normální)</td></tr>
+</table>
+
+<p class="meta"><em>Krátkodobě jiná hodnota než <code>NOTHING</code> je legitimní. Alertovat se má až na stav trvající déle než 60 minut.</em></p>
+
+<!-- ============================================ -->
+<h2 id="zadani"><span class="n">4</span>Původní logika zadání</h2>
+
+<p>Současné nastavení <strong>není nedopatření.</strong> Vzniklo z úvahy, kterou je potřeba zaznamenat, aby ji příště nikdo nepřepsal jako chybu:</p>
+
+<ol>
+<li>Data do systému vkládají <strong>lidé v pracovní době v pracovních dnech</strong>, o víkendu výjimečně.</li>
+<li>V noci se generují <strong>sestavy</strong>, které se dají přegenerovat.</li>
+<li>Chránit je tedy potřeba hlavně to, co zadali lidé.</li>
+</ol>
+
+<p>Ta úvaha zůstává základem návrhu. Rozlišení mezi denními a nočními daty se promítá do <strong>intervalu</strong> záloh. Tři místa se ale s technikou rozcházejí:</p>
+
+<table>
+<tr><th>#</th><th>Rozpor</th><th>Vysvětlení</th></tr>
+<tr><td>a</td><td>Noční záloha logu není ochrana nočních dat</td><td>Je to údržba — bez ní se log neuvolní a ráno neběží nic. Viz kapitola 3.</td></tr>
+<tr><td>b</td><td>Současné nastavení nešetří místo</td><td>Objem logu se frekvencí nemění. Těch ~100 GB se zazálohuje tak jako tak — buď průběžně, nebo v 5:30 v jednom bloku. Stejné místo, stejná retence.</td></tr>
+<tr><td>c</td><td>Okno končí v 15:46, ne po pracovní době</td><td>Kdo zadá objednávku v 16:20, má ji zálohovanou až v 5:30 ráno. To je přesně ten typ dat, který má návrh chránit nejvíc.</td></tr>
+</table>
+
+<div class="box w">
+<b>Otázka k ověření</b>
+Je noční provoz opravdu jen regenerovatelné sestavy? Podle demilitarizačního skriptu pro <code>NAV-TEST</code> obsluhuje job queue také <strong>EDI, M-Files a webshop sync</strong>. Odchozí EDI dokument přegenerovat nelze — protistrana ho už má. Stejně tak zaúčtovaný doklad.
+</div>
+
+<!-- ============================================ -->
+<h2 id="cilovy"><span class="n">5</span>Cílový stav</h2>
+
+<h3>5.1 Zálohy</h3>
+
+<div class="scroll">
+<table>
+<tr><th>Prvek</th><th>Cílový stav</th><th>Poznámka</th></tr>
+<tr><td>Log zálohy — pracovní doba</td><td>á 15 min, později á 5 min</td><td>05:00–20:00</td></tr>
+<tr><td>Log zálohy — noc</td><td>á 60 min</td><td>20:00–05:00, drží log recyklovaný</td></tr>
+<tr><td>Dny</td><td><strong>všech 7</strong></td><td>„výjimečně o víkendu" je pořád práce</td></tr>
+<tr><td>Kde běží</td><td><strong>samostatný SQL Agent job</strong></td><td>ne v maintenance plánu — ten schedule přepisuje při uložení</td></tr>
+<tr><td>Jméno souboru</td><td><strong>jeden soubor na zálohu, s časovým razítkem vč. milisekund</strong></td><td>kolize názvu se tiše připojí do téže media sady</td></tr>
+<tr><td>Přepínače</td><td><code>COMPRESSION, CHECKSUM</code></td><td><strong>nikdy <code>CONTINUE_AFTER_ERROR</code></strong> v rutinním jobu</td></tr>
+<tr><td>Umístění logu</td><td>svazek oddělený od full záloh</td><td>zaplnění jednoho nesmí zastavit druhé</td></tr>
+<tr><td>Full zálohy</td><td>denní <em>nebo</em> týdenní</td><td>rozhodne se po změření kapacity</td></tr>
+<tr><td>Diff zálohy</td><td><strong>denní — jen při týdenní full</strong></td><td>denní full + týdenní diff nedává smysl</td></tr>
+<tr><td>Full mimo plán (pro NAV-TEST)</td><td><strong>vždy <code>COPY_ONLY</code></strong>, pokud existují diffy</td><td>jinak přesune diff base na soubor, který se přepíše</td></tr>
+<tr><td>Retence</td><td>≥ 2 plné cykly (8 dní při denní full, 15 při týdenní)</td><td>dnešní „1 týden" je pro týdenní full nedostatečné</td></tr>
+<tr><td>Kopie mimo server</td><td>povinná</td><td>ochrana proti ztrátě serveru</td></tr>
+<tr><td>Neměnná / offline kopie</td><td>povinná</td><td>ransomware; řeší se vlastností úložiště, ne oprávněními</td></tr>
+</table>
+</div>
+
+<div class="box w">
+<b>Zjednodušená varianta</b>
+Místo dvou pásem (15 min přes den, 60 min v noci) lze jet <strong>á 15 minut nepřetržitě</strong>. Nestojí to nic navíc, je to o jedno nastavení míň a méně míst, kde udělat chybu. Rozdíl proti dvoupásmové variantě je zanedbatelný.
+</div>
+
+<h3>5.2 Co dělá které opatření</h3>
+
+<div class="scroll">
+<table>
+<tr><th>Hrozba</th><th>Log zálohy 24/7</th><th>Kopie mimo server</th><th>Neměnná kopie</th><th>Log shipping</th></tr>
+<tr><td>Selhání disku s logem</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+<tr><td>Ztráta serveru</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+<tr><td>Chyba uživatele</td><td>✅</td><td>✅</td><td>✅</td><td><strong>❌ replikuje ji</strong></td></tr>
+<tr><td>Ransomware</td><td>❌</td><td>⚠</td><td>✅</td><td><strong>❌ replikuje ho</strong></td></tr>
+<tr><td>Poškození dat</td><td>⚠</td><td>✅</td><td>✅</td><td><strong>❌ replikuje ho</strong></td></tr>
+<tr><td>Rychlá obnova provozu (RTO)</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+</table>
+</div>
+
+<div class="box i">
+<b>Log shipping není záloha</b>
+Je postavený na log zálohách a přidává rychlé přepnutí při havárii hardwaru. Chybu uživatele, ransomware i poškozená data <strong>poslušně replikuje během minut</strong>. Správná logika je <em>zálohy + volitelně log shipping</em>, nikdy „místo".
+</div>
+
+<!-- ============================================ -->
+<h2 id="krok"><span class="n">6</span>Postup realizace</h2>
+
+<p>Kroky jsou seřazené tak, aby <strong>žádný z nich nezanechal systém v horším stavu</strong>, než v jakém byl. Celkem asi 30 minut práce, každý krok vratný.</p>
+
+<ol class="steps">
+
+<li>
+<span class="st">Ověřit prostředí — jen čtení</span>
+<span class="meta">15 min · nulové riziko · odpoví na 4 z otevřených otázek</span>
+<pre><code>EXEC master..xp_fixeddrives;
+GO
+USE [NAV-LIVE];
+SELECT name, type_desc,
+       CAST(size*8.0/1024/1024 AS decimal(10,1)) AS size_gb,
+       CASE max_size WHEN -1 THEN 'neomezeno'
+            ELSE CAST(CAST(max_size*8.0/1024/1024 AS decimal(10,1)) AS varchar(20)) END AS max_gb,
+       CAST(FILEPROPERTY(name,'SpaceUsed')*8.0/1024/1024 AS decimal(10,1)) AS pouzito_gb,
+       growth, is_percent_growth, physical_name
+FROM sys.database_files;
+
+SELECT COUNT(*) AS vlf_count FROM sys.dm_db_log_info(DB_ID());
+GO
+USE [master];
+SELECT b.type, CONVERT(varchar(19), b.backup_finish_date,120) AS kdy,
+       b.is_copy_only, LEFT(b.user_name,25) AS spustil,
+       LEFT(mf.physical_device_name,70) AS soubor
+FROM msdb.dbo.backupset b
+JOIN msdb.dbo.backupmediafamily mf ON mf.media_set_id = b.media_set_id
+WHERE b.database_name='NAV-LIVE' AND b.type IN ('D','I')
+  AND b.backup_finish_date > DATEADD(DAY,-30,GETDATE())
+ORDER BY b.backup_finish_date DESC;
+
+SELECT SERVERPROPERTY('Edition') AS edice, SERVERPROPERTY('ProductVersion') AS verze;
+SELECT servicename, service_account, instant_file_initialization_enabled
+FROM sys.dm_server_services;</code></pre>
+<p style="margin:.6rem 0 0"><strong>Prázdný výsledek pro typ <code>I</code> znamená, že diferenciální zálohy nevznikají</strong> — to je samostatný nález a mění volbu varianty.</p>
+</li>
+
+<li>
+<span class="st">Rozhodnout cílové umístění log záloh</span>
+<span class="meta">5 min · nulové riziko</span>
+<p>Podle výsledku <code>xp_fixeddrives</code> vybrat svazek <strong>oddělený od full záloh</strong>. Adresář vytvořit a ověřit, že do něj má servisní účet SQL Serveru zápis. Rozhodnout teď — přesouvat běžící řetěz později je zbytečné riziko.</p>
+</li>
+
+<li>
+<span class="st">Ověřit, že vůbec funguje odesílání upozornění</span>
+<span class="meta">10 min · nulové riziko</span>
+<pre><code>SELECT name, description FROM msdb.dbo.sysmail_profile;
+SELECT name, email_address, enabled FROM msdb.dbo.sysoperators;
+
+-- ostry test az po nastaveni prijemce:
+EXEC msdb.dbo.sp_send_dbmail
+     @profile_name = N'&lt;profil&gt;',
+     @recipients   = N'&lt;adresa&gt;',
+     @subject      = N'Test alertu NAV-LIVE',
+     @body         = N'Pokud toto vidis, alertovani funguje.';</code></pre>
+<p style="margin:.6rem 0 0">Test není hotový, dokud e-mail <strong>nedorazí</strong>. 17 nepovšimnutých selhání jobu ukazuje, že existence jobu ještě nic nehlídá. Když Database Mail není nastaven, použít zápis do tabulky, kterou čte ITDashboard.</p>
+</li>
+
+<li>
+<span class="st">Založit job — zatím vypnutý</span>
+<span class="meta">5 min · nulové riziko · vratné smazáním</span>
+<pre><code>USE [msdb];
+GO
+EXEC msdb.dbo.sp_add_job
+     @job_name = N'BC_Backup_TLog_Continuous',
+     @enabled = 0,
+     @description = N'Zaloha transakcniho logu NAV-LIVE 24/7. Mimo maintenance plan zamerne.';
+GO
+EXEC msdb.dbo.sp_add_jobstep
+     @job_name = N'BC_Backup_TLog_Continuous',
+     @step_name = N'Backup TLog',
+     @subsystem = N'TSQL',
+     @database_name = N'master',
+     @retry_attempts = 2,
+     @retry_interval = 1,
+     @command = N'
+SET NOCOUNT ON;
+
+DECLARE @dir  nvarchar(260) = N''&lt;CILOVA_CESTA&gt;\'';
+DECLARE @file nvarchar(400);
+
+IF DATABASEPROPERTYEX(N''NAV-LIVE'', ''Recovery'') &lt;&gt; ''FULL''
+BEGIN
+    RAISERROR(''NAV-LIVE neni ve FULL recovery - zaloha logu prerusena.'', 16, 1);
+    RETURN;
+END
+
+SET @file = @dir + N''NAV-LIVE_log_'' +
+            REPLACE(REPLACE(REPLACE(REPLACE(
+              CONVERT(varchar(23), GETDATE(), 121), ''-'',''''), '' '',''_''), '':'',''''), ''.'','''') +
+            N''.trn'';
+
+BACKUP LOG [NAV-LIVE] TO DISK = @file
+WITH COMPRESSION, CHECKSUM, STATS = 0;
+';
+GO
+EXEC msdb.dbo.sp_add_jobschedule
+     @job_name = N'BC_Backup_TLog_Continuous',
+     @name = N'Kazdych 15 minut 24/7',
+     @freq_type = 4, @freq_interval = 1,
+     @freq_subday_type = 4, @freq_subday_interval = 15,
+     @active_start_time = 000000, @active_end_time = 235959;
+GO
+EXEC msdb.dbo.sp_add_jobserver @job_name = N'BC_Backup_TLog_Continuous';</code></pre>
+<p style="margin:.6rem 0 0"><code>&lt;CILOVA_CESTA&gt;</code> doplnit z kroku 2. Časové razítko je včetně milisekund — při ručním spuštění by kolize názvu způsobila tiché připojení do téže media sady.</p>
+</li>
+
+<li>
+<span class="st">Spustit ručně a ověřit výsledek</span>
+<span class="meta">5 min · nízké riziko</span>
+<pre><code>EXEC msdb.dbo.sp_start_job @job_name = N'BC_Backup_TLog_Continuous';
+WAITFOR DELAY '00:00:30';
+
+SELECT TOP 3 CONVERT(varchar(23), b.backup_finish_date, 121) AS kdy,
+       CAST(b.backup_size/1024.0/1024 AS decimal(10,1)) AS mb,
+       LEFT(mf.physical_device_name, 95) AS soubor
+FROM msdb.dbo.backupset b
+JOIN msdb.dbo.backupmediafamily mf ON mf.media_set_id = b.media_set_id
+WHERE b.database_name = 'NAV-LIVE' AND b.type = 'L'
+ORDER BY b.backup_finish_date DESC;</code></pre>
+<p style="margin:.6rem 0 0">Musí se objevit <strong>nový soubor s časovým razítkem</strong> v cílovém adresáři. Pak ověřit jeho čitelnost:</p>
+<pre><code>RESTORE VERIFYONLY FROM DISK = N'&lt;novy_soubor&gt;' WITH CHECKSUM;</code></pre>
+</li>
+
+<li>
+<span class="st">Zapnout automatický běh</span>
+<span class="meta">1 min · vratné vypnutím</span>
+<pre><code>EXEC msdb.dbo.sp_update_job @job_name = N'BC_Backup_TLog_Continuous', @enabled = 1;</code></pre>
+</li>
+
+<li>
+<span class="st">Počkat na dva automatické běhy</span>
+<span class="meta">30 min · žádná akce</span>
+<p>Do té doby běží staré i nové zálohy současně. To je <strong>záměrné</strong> — nikdy nesmí nastat okamžik bez funkčních záloh logu.</p>
+</li>
+
+<li>
+<span class="st">Teprve teď vypnout staré joby</span>
+<span class="meta">2 min · vratné zapnutím</span>
+<pre><code>-- KONTROLA: musi vratit aspon 2
+SELECT COUNT(*) AS z_noveho_jobu
+FROM msdb.dbo.sysjobhistory h
+JOIN msdb.dbo.sysjobs j ON j.job_id = h.job_id
+WHERE j.name = 'BC_Backup_TLog_Continuous'
+  AND h.step_id = 0 AND h.run_status = 1
+  AND h.run_date >= CONVERT(int, CONVERT(varchar(8), GETDATE(), 112));
+GO
+-- Az kdyz vyslo &gt;= 2:
+EXEC msdb.dbo.sp_update_job @job_name = N'BackupMaintenancePlan.Tlog',  @enabled = 0;
+EXEC msdb.dbo.sp_update_job @job_name = N'BackupMaintenancePlan.Tlog2', @enabled = 0;</code></pre>
+<div class="box w" style="margin:.7rem 0 0">
+<b>Nemazat, jen vypnout</b>
+Vypnutý job jde vrátit jedním příkazem. Smazaný subplan maintenance plánu se obnovuje složitě. Souběh dvou jobů rozprostírá jednu LSN posloupnost přes víc nezávisle spravovaných sad souborů — dlouhodobě je to nežádoucí, krátkodobě je to pojistka.
+</div>
+</li>
+
+<li>
+<span class="st">Ověřit</span>
+<span class="meta">2 min · a znovu zítra ráno</span>
+<pre><code>SELECT log_reuse_wait_desc FROM sys.databases WHERE name = 'NAV-LIVE';
+
+SELECT DATEDIFF(MINUTE, MAX(backup_finish_date), GETDATE()) AS log_stari_min
+FROM msdb.dbo.backupset
+WHERE database_name = 'NAV-LIVE' AND type = 'L';</code></pre>
+<p style="margin:.6rem 0 0"><strong>Zítra ráno</strong> musí být v <code>backupset</code> zálohy i z nočních hodin. Tím je problém, kvůli kterému tohle všechno vzniklo, vyřešený.</p>
+</li>
+
+</ol>
+
+<h3>6.1 Rychlá alternativa</h3>
+
+<p>Pokud není čas na založení nového jobu, stačí rozšířit okno stávajícího. Je to horší řešení — maintenance plán schedule při uložení v designeru přepíše — ale <strong>je to nekonečně lepší než dnešní stav</strong>. Nejdřív zavřít designer plánu bez uložení, pak:</p>
+
+<pre><code>DECLARE @sid int;
+SELECT @sid = s.schedule_id
+FROM msdb.dbo.sysschedules s
+JOIN msdb.dbo.sysjobschedules js ON js.schedule_id = s.schedule_id
+JOIN msdb.dbo.sysjobs j ON j.job_id = js.job_id
+WHERE j.name = N'BackupMaintenancePlan.Tlog';
+
+IF @sid IS NULL BEGIN RAISERROR('Schedule nenalezen - nic nemenim.',16,1); RETURN; END
+
+EXEC msdb.dbo.sp_update_schedule
+     @schedule_id = @sid,
+     @freq_type = 8, @freq_interval = 127, @freq_recurrence_factor = 1,
+     @freq_subday_type = 4, @freq_subday_interval = 15,
+     @active_start_time = 000000, @active_end_time = 235959;</code></pre>
+
+<p><code>@freq_interval = 127</code> je všech sedm dní (Ne 1 + Po 2 + Út 4 + St 8 + Čt 16 + Pá 32 + So 64). Kontrola musí vrátit <code>freq_interval = 127</code>, časy <code>00:00:00</code>–<code>23:59:59</code> a dnešní <code>date_modified</code>.</p>
+
+<!-- ============================================ -->
+<h2 id="monitoring"><span class="n">7</span>Monitoring</h2>
+
+<p>Bez tohoto se stejná chyba vrátí potřetí, stejně jako se vrátila podruhé.</p>
+
+<div class="scroll">
+<table>
+<tr><th>Co hlídat</th><th>Práh</th><th>Priorita</th></tr>
+<tr><td>Stáří poslední zálohy logu</td><td>&gt; 60 min</td><td><span class="tag t-r">P0</span></td></tr>
+<tr><td>Chyba 9002 v Event Logu</td><td>jakákoli</td><td><span class="tag t-r">P0</span></td></tr>
+<tr><td>Selhání zálohovacího jobu</td><td>jakékoli</td><td><span class="tag t-r">P0</span></td></tr>
+<tr><td>Zaplnění log souboru</td><td>&gt; 70 %</td><td><span class="tag t-a">P1</span></td></tr>
+<tr><td><code>log_reuse_wait_desc</code> ≠ <code>NOTHING</code></td><td>déle než 60 min</td><td><span class="tag t-a">P1</span></td></tr>
+<tr><td>Volné místo na zálohovacím svazku</td><td>&lt; 20 %</td><td><span class="tag t-a">P1</span></td></tr>
+<tr><td>Stáří poslední full zálohy</td><td>&gt; 26 h / &gt; 8 dní dle varianty</td><td><span class="tag t-a">P1</span></td></tr>
+<tr><td>Změna <code>date_modified</code> u schedule</td><td>jakákoli</td><td><span class="tag t-a">P1</span></td></tr>
+<tr><td>Výsledek <code>DBCC CHECKDB</code></td><td>chyba nebo &gt; 8 dní</td><td><span class="tag t-n">P2</span></td></tr>
+<tr><td>Výsledek testovací obnovy</td><td>selhání nebo &gt; 8 dní</td><td><span class="tag t-n">P2</span></td></tr>
+</table>
+</div>
+
+<p>Dotaz pro denní kontrolu:</p>
+
+<pre><code>SELECT
+  CONVERT(varchar(19), MAX(CASE WHEN type='D' THEN backup_finish_date END),120) AS posl_full,
+  CONVERT(varchar(19), MAX(CASE WHEN type='L' THEN backup_finish_date END),120) AS posl_log,
+  DATEDIFF(MINUTE, MAX(CASE WHEN type='L' THEN backup_finish_date END), GETDATE()) AS log_stari_min
+FROM msdb.dbo.backupset WHERE database_name='NAV-LIVE';</code></pre>
+
+<div class="box w">
+<b>Vypnutý hlídač</b>
+Na serveru existuje job <code>BC_Jobs_Backup_Monitor_Simple</code> (volá <code>sp_CheckJobChanges_Simple</code> v databázi <code>AXI_DEV</code>), který je <strong>vypnutý</strong>. Navzdory názvu hlídá <em>změny jobů</em> — přesně to, co by odhalilo, že se schedule vrátil. Před zapnutím prověřit, co dělá.
+</div>
+
+<!-- ============================================ -->
+<h2 id="obnova"><span class="n">8</span>Postupy obnovy</h2>
+
+<h3>8.1 Chyba uživatele — vrátit stav k času T</h3>
+
+<div class="box d">
+<b>Nikdy neobnovovat přes produkci</b>
+Obnova k času je vždy celodatabázová. Vrátit NAV-LIVE do 9:59 znamená zahodit práci všech 57 uživatelů od té doby. Obnovuje se <strong>kopie pod jiným jménem</strong> a data se přenesou ručně.
+</div>
+
+<pre><code>RESTORE DATABASE [NAV-RECOVER]
+FROM DISK = 'G:\Backup\...\NAV-LIVE_full.bak'
+WITH MOVE 'NAV_LIVE_Data' TO 'T:\Database\NAV-RECOVER\NAV-RECOVER.mdf',
+     MOVE 'NAV_LIVE_Log'  TO 'T:\Database\NAV-RECOVER\NAV-RECOVER.ldf',
+     NORECOVERY, STATS = 5;
+
+-- postupne vsechny log zalohy od te full
+RESTORE LOG [NAV-RECOVER] FROM DISK = '...\log_001.trn' WITH NORECOVERY;
+-- ...
+
+-- posledni, s casem kam az
+RESTORE LOG [NAV-RECOVER] FROM DISK = '...\log_NNN.trn'
+WITH RECOVERY, STOPAT = '2026-08-10T09:59:00';</code></pre>
+
+<h3>8.2 Když nevíme přesný čas — STANDBY</h3>
+
+<p>Mezi jednotlivými <code>RESTORE LOG</code> lze do databáze nahlédnout a „dojíždět" k okamžiku chyby po krocích:</p>
+
+<pre><code>RESTORE LOG [NAV-RECOVER] FROM DISK = '...\log_005.trn'
+WITH STANDBY = 'T:\Database\NAV-RECOVER\undo.dat',
+     STOPAT = '2026-08-10T09:00:00';
+
+-- databaze je ted citelna - je uz problem pritomen?
+SELECT TOP 10 * FROM [NAV-RECOVER].dbo.[AXIMA$Sales Header] ORDER BY [No_] DESC;
+
+-- pokud ne, pokracovat dal</code></pre>
+
+<h3>8.3 Ztráta databáze, server žije</h3>
+
+<ol>
+<li><strong>Nejdřív tail-log backup</strong>, dokud je <code>.ldf</code> čitelný — srazí ztrátu prakticky na nulu:
+<pre><code>BACKUP LOG [NAV-LIVE] TO DISK = 'G:\Backup\tail.trn' WITH NORECOVERY, INIT;</code></pre>
+Je-li log poškozený: <code>WITH CONTINUE_AFTER_ERROR</code>. <em>Toto je jediné legitimní použití toho přepínače.</em></li>
+<li>Full → (diff) → všechny logy → tail log s <code>WITH RECOVERY</code></li>
+<li>Restartovat službu BC na <code>B-S-W-NAV-01</code></li>
+</ol>
+
+<h3>8.4 Ztráta celého serveru</h3>
+
+<p>Navíc je potřeba obnovit <strong><code>master</code> a <code>msdb</code></strong> — bez nich se ručně rekonstruují loginy, joby a plány. Jsou malé a musí být součástí zálohovacího plánu. Pořadí: instalace SQL Serveru → <code>master</code> (single-user) → <code>msdb</code> → NAV-LIVE.</p>
+
+<h3>8.5 Akceptační protokol — kdy je obnova hotová</h3>
+
+<p>Obnova <strong>není</strong> hotová tím, že je databáze <code>ONLINE</code>:</p>
+
+<ul class="chk">
+<li>Databáze je <code>ONLINE</code> a <code>DBCC CHECKDB</code> je bez chyb</li>
+<li>BC service tier se připojil k databázi</li>
+<li>Uživatel se přihlásil do klienta Business Central</li>
+<li>Poslední zaúčtovaný doklad odpovídá očekávanému času obnovy</li>
+<li>Testovací zaúčtování prodejní faktury proběhlo bez chyby číselných řad</li>
+<li>Job queue je ve stavu <em>Ready</em>, nic nevisí v <em>In Process</em></li>
+<li>M-Files a EDI složky jsou funkční</li>
+<li>Zapsáno do provozního deníku — co, proč a kam se obnovovalo</li>
+</ul>
+
+<h3>8.6 Testování obnovy</h3>
+
+<p>Skript <code>Restore-NAV-TEST.ps1</code> obnovuje <code>NAV-TEST</code> z poslední <code>.bak</code> a databázi demilitarizuje. Každý běh je <strong>důkazem, že full záloha je obnovitelná</strong>, a měřením RTO. Chybí tři věci:</p>
+
+<ol>
+<li><strong>Zapisovat výsledek a dobu běhu</strong> — jinak není změřené RTO ani historie.</li>
+<li><strong>Jednou měsíčně obnovit s <code>STOPAT</code></strong> na náhodný čas z minulého týdne. Dnešní test ověřuje jen full zálohu, ne log chain — tedy přesně tu část, na které stojí celý cíl.</li>
+<li><strong><code>DBCC CHECKDB</code> nad obnovenou kopií</strong> — ověří zálohu i integritu, aniž by trpěla produkce.</li>
+</ol>
+
+<div class="box w">
+<b>Chyba ve skriptu</b>
+<pre style="margin:.5rem 0"><code>Sort-Object LastAccessTime -Descending</code></pre>
+Aktualizace <code>LastAccessTime</code> je na moderních Windows ve výchozím stavu <strong>vypnutá</strong> (<code>NtfsDisableLastAccessUpdate</code>). Skript může sáhnout po staré záloze, obnova proběhne bez chyby a nikdo si nevšimne, že se testují týden stará data.
+<pre style="margin:.5rem 0 0"><code>$LatestBackupFile = Get-ChildItem -Path $BackupFolder -Filter *.bak |
+                    Sort-Object LastWriteTime -Descending | Select-Object -First 1
+
+if (-not $LatestBackupFile) { throw "Backup file not found" }
+if ($LatestBackupFile.LastWriteTime -lt (Get-Date).AddHours(-30)) {
+    throw "Nejnovejsi zaloha je z $($LatestBackupFile.LastWriteTime) - starsi nez 30 h, koncim."
+}</code></pre>
+</div>
+
+<div class="box d">
+<b>Bezpečnost testovací kopie</b>
+<code>Restore-NAV-TEST.ps1</code> vyrábí denně <strong>plnou kopii ostrých firemních dat</strong>. Demilitarizace odpojí okolní systémy — <em>ne přístup k datům samotným</em>. Kdo má přístup na <code>NAV-TEST</code>, má všechna firemní data, jen o den starší. Může to být vědomě přijaté riziko; musí ale být zaznamenané.
+</div>
+
+<!-- ============================================ -->
+<h2 id="rozhodnuti"><span class="n">9</span>Otevřená rozhodnutí</h2>
+
+<div class="scroll">
+<table>
+<tr><th>#</th><th>Otázka</th><th>Kdo odpoví</th><th>Blokuje</th></tr>
+<tr><td>1</td><td><s><code>max_size</code> a velikost logu</s></td><td>krok 1</td><td><span class="tag t-g">97,7 GB, na stropu</span></td></tr>
+<tr><td>2</td><td><s>Existují diferenciální zálohy?</s></td><td>krok 1</td><td><span class="tag t-g">ano, denně 01:30</span></td></tr>
+<tr><td>3</td><td><s>Je denní full pro test <code>COPY_ONLY</code>?</s></td><td>krok 1</td><td><span class="tag t-r">NE — nález</span></td></tr>
+<tr><td>4</td><td><s>Volné místo na svazcích</s></td><td>krok 1</td><td><span class="tag t-g">G: 1 459 GB</span></td></tr>
+<tr><td>5</td><td>Je G: jiné fyzické pole než E: a F:?</td><td>správce infrastruktury</td><td>hodnotu první kopie</td></tr>
+<tr><td>6</td><td><s>Zálohuje se virtuál?</s></td><td>krok 1</td><td><span class="tag t-g">ano, VSS 18:43 denně</span></td></tr>
+<tr><td>7</td><td><strong>Kam ukládá VSS záloha a je mimo server?</strong></td><td>správce virtualizace</td><td><strong>kopii č. 2 a č. 3</strong></td></tr>
+<tr><td>8</td><td><s>Edice SQL Serveru</s></td><td>krok 1</td><td><span class="tag t-g">Enterprise</span></td></tr>
+<tr><td>9</td><td>Funguje Database Mail?</td><td>krok 3</td><td>všechny alerty</td></tr>
+<tr><td>10</td><td>Je noční provoz jen regenerovatelné sestavy?</td><td>uživatelé + partner BC</td><td>hodnocení nočního RPO</td></tr>
+<tr><td>11</td><td><strong>Jaké RPO a RTO firma potřebuje?</strong></td><td><strong>vedení</strong></td><td><strong>vše ostatní</strong></td></tr>
+<tr><td>12</td><td>Jaká je retence <code>G:\Backup\NAV-TEST-USERS\</code>?</td><td>správce záloh</td><td>použitelnost diff záloh</td></tr>
+<tr><td>13</td><td>Co v noci generuje 94 GB logu?</td><td>měření + partner BC</td><td>objem záloh, Fáze 4</td></tr>
+</table>
+</div>
+
+<div class="box i">
+<b>Otázka 6 může přepsat celý dokument</b>
+Server je VMware VM. Pokud už existuje záloha celého virtuálu (Veeam apod.), může to být ta chybějící kopie mimo server — nebo naopak něco, co s application-aware zpracováním zasahuje do transakčního logu. Je to jeden telefonát.
+</div>
+
+<div class="box w">
+<b>Otázka 11 nemůže zodpovědět IT</b>
+Všechny tři návrhy si RPO a RTO zatím <strong>určily samy</strong>. To je v pořádku jako výchozí odhad, ne jako trvalý stav. Kolik hodin práce smí firma ztratit a jak dlouho smí stát, je obchodní rozhodnutí.
+</div>
+
+<!-- ============================================ -->
+<h2 id="rejstrik"><span class="n">10</span>Rejstřík nálezů</h2>
+
+<div class="scroll">
+<table>
+<tr><th>Nález</th><th>Závažnost</th><th>Stav</th></tr>
+<tr><td>Okno log záloh 05:30–15:46 → RPO až 13 h 44 min</td><td><span class="tag t-r">kritické</span></td><td>čeká na krok 6</td></tr>
+<tr><td>Oprava z 23. 7. nebyla nikdy nasazena (<code>date_modified</code> 2025-01-10)</td><td><span class="tag t-r">kritické</span></td><td>doloženo</td></tr>
+<tr><td>Skutečný rozsah incidentu 9002 neznámý (export stropovaný na 300 řádků)</td><td><span class="tag t-a">závažné</span></td><td>nový export bez limitu</td></tr>
+<tr><td><code>shrink_log</code> zmenšoval log na 10 MB</td><td><span class="tag t-a">závažné</span></td><td><span class="tag t-g">vyřešeno</span></td></tr>
+<tr><td>Strop logu nikdy neověřen</td><td><span class="tag t-a">závažné</span></td><td>krok 1</td></tr>
+<tr><td>Neexistuje důkaz, že diferenciální zálohy vznikají</td><td><span class="tag t-a">závažné</span></td><td>krok 1</td></tr>
+<tr><td>Retence 1 týden proti týdenní full záloze</td><td><span class="tag t-a">závažné</span></td><td>po kroku 1</td></tr>
+<tr><td><code>COPY_ONLY</code> u denní full pro test — neznámo</td><td><span class="tag t-a">závažné</span></td><td>krok 1</td></tr>
+<tr><td>Žádná ověřená kopie mimo server</td><td><span class="tag t-a">závažné</span></td><td>otázka 7</td></tr>
+<tr><td>Obnova k času nikdy netestována</td><td><span class="tag t-a">závažné</span></td><td>kap. 8.6</td></tr>
+<tr><td><code>Emergency_Cache_Warming</code> selhává 17× za 5 h, nikdo si nevšiml</td><td><span class="tag t-a">závažné</span></td><td>mimo scope, hlásit dál</td></tr>
+<tr><td>Zálohy nešifrované, přístup neřešen; NAV-TEST = kopie ostrých dat</td><td><span class="tag t-a">závažné</span></td><td>rozhodnutí</td></tr>
+<tr><td><code>LastAccessTime</code> v <code>Restore-NAV-TEST.ps1</code></td><td><span class="tag t-n">střední</span></td><td>oprava v kap. 8.6</td></tr>
+<tr><td>Chybí runbook použitelný pro zástup (bus factor 1)</td><td><span class="tag t-n">střední</span></td><td>tento dokument je základ</td></tr>
+<tr><td>Dokumentace neuložená ve verzovaném úložišti</td><td><span class="tag t-n">střední</span></td><td>do gitu</td></tr>
+<tr><td>~120 nescheduleovaných <code>BC_*</code> jobů, 5 zálohovacích plánů</td><td><span class="tag t-n">střední</span></td><td>úklid později</td></tr>
+<tr><td>Někdo je trvale interaktivně přihlášen na produkčním SQL (GPO refresh á 90 min)</td><td><span class="tag t-n">drobné</span></td><td>ověřit</td></tr>
+</table>
+</div>
+
+<div class="box k">
+<b>Poznámka na závěr</b>
+Za jedno dopoledne vznikly dva návrhy, dva protinávrhy a tři oponentury. Na produkci se za tu dobu změnila <strong>jedna věc</strong> — vypnul se <code>shrink_log</code>.
+<br><br>
+Kapitola 6 trvá 30 minut a je celá vratná. Dokud neproběhne, je tenhle dokument jen dobře zdokumentovaný popis problému.
+</div>
+
+<footer>
+  <p><strong>NAV-LIVE — zálohování a obnova · finální konsolidované zadání</strong></p>
+  <p>Konsoliduje: návrh v1 a v2, oponenturu 1, protinávrh v3, oponenturu 2 a externí technickou revizi. Podklady: exporty Event Logu z ITDashboardu (10. 8. 2026, 07:04 a 09:28), dotazy nad <code>msdb</code>, snímky SQL Server Agenta, skript <code>Restore-NAV-TEST.ps1</code>.</p>
+  <p>Dokument je soběstačný — neodkazuje na jiné soubory. Doporučené uložení: git, ne Downloads.</p>
+</footer>
+
+</div>
+</body>
+</html>
