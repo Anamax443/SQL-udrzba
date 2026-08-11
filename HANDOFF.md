@@ -48,19 +48,34 @@ Volitelně kolem 22:00 předrostit soubor, aby v noci neprobíhalo nulování po
 SQL Agent → Jobs → `BackupMaintenancePlan.Tlog` → Schedules → zaškrtnout **Saturday**.
 Kontrola: `freq_interval` musí být **127** (teď je 63). Pak je `Tlog2` nadbytečný a lze vypnout.
 
-### 3.3 Skutečná oprava nočního objemu
+### 3.3 Skutečná oprava nočního objemu — návrh hotový
 
-Přečíst celý krok 1 jobu `1xdenne`:
+Krok 1 jobu `1xdenne` je přečtený a analyzovaný. Dělá tohle:
 
 ```sql
-DECLARE @cmd nvarchar(max);
-SELECT @cmd = s.command FROM msdb.dbo.sysjobsteps s
-JOIN msdb.dbo.sysjobs j ON j.job_id = s.job_id
-WHERE j.name = N'1xdenne' AND s.step_id = 1;
-PRINT SUBSTRING(@cmd,1,4000); PRINT SUBSTRING(@cmd,4001,4000); PRINT SUBSTRING(@cmd,8001,4000);
+DECLARE @PROCENT AS int = 10;
+'ALTER INDEX [...] REBUILD;'
+WHERE ips.avg_fragmentation_in_percent > @PROCENT AND ips.page_count > 100
 ```
 
-Cíl: přejít z plošné přestavby na prahovou logiku — `< 5 %` nic, `5–30 %` REORGANIZE, `> 30 %` REBUILD `WITH (ONLINE = ON)` (edice je Enterprise). Očekávaný efekt: −70 až −90 % generovaného logu.
+| # | Nález | Dopad |
+|---|---|---|
+| 1 | Práh 10 %, jediná akce = plná přestavba | **hlavní zdroj 140 GB logu** |
+| 2 | `page_count > 100` (800 kB) místo obvyklých 1000 | spousta drobné práce navíc |
+| 3 | `UPDATE STATISTICS` navíc, jednou za **každý index** téže tabulky | REBUILD statistiky aktualizuje sám → čistá práce navíc |
+| 4 | Chyby polykané do tabulkové proměnné | **job hlásí OK, i když polovina selže** |
+| 5 | Bez `SORT_IN_TEMPDB`, bez `MAXDOP` | třídění v NAV-LIVE, neomezený paralelismus |
+
+**Návrh náhrady: [sql/1xdenne-krok1-udrzba-indexu-navrh.sql](sql/1xdenne-krok1-udrzba-indexu-navrh.sql)**
+
+- prahová logika: `< 5 %` nic · `5–30 %` REORGANIZE · `> 30 %` REBUILD
+- `page_count >= 1000`, časový limit 90 min, `SORT_IN_TEMPDB` + `MAXDOP`
+- `UPDATE STATISTICS` jen pro neprestavované tabulky a jednou na tabulku
+- `RAISERROR` na konci → job při chybách **skutečně selže**
+
+**Postup nasazení:** nejdřív spustit s `@JenVypis = 1` (nic nemění, jen ukáže plán a objem v GB podle kategorií). Teprve podle toho nahradit obsah kroku 1.
+
+> `ONLINE = ON` objem logu **nesníží** — naopak, udržuje verzovací strukturu navíc. Pomáhá dostupnosti, ne logu. Hlavní páka je práh.
 
 ### 3.4 Notifikace zálohovacích jobů
 

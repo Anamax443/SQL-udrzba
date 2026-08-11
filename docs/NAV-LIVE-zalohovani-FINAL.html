@@ -102,16 +102,30 @@ footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid var(--line);color
     <div class="fact"><b>Databáze</b>NAV-LIVE · Business Central 14</div>
     <div class="fact"><b>Server</b>B-S-W-SQL-01 · SQL Server 2017</div>
     <div class="fact"><b>Velikost</b>800 GB · 57 uživatelů</div>
-    <div class="fact"><b>RPO dnes v noci</b>až 13 h 44 min</div>
-    <div class="fact"><b>RPO po opravě</b>15 minut</div>
-    <div class="fact"><b>Datum</b>10. 8. 2026</div>
+    <div class="fact"><b>RPO Ne–Pá</b>15 minut ✅</div>
+    <div class="fact"><b>RPO sobota</b>5,5 h + 8 h díra</div>
+    <div class="fact"><b>Aktualizováno</b>11. 8. 2026</div>
   </div>
 </header>
 
+<div class="box k" style="border-left-width:6px">
+  <b>✅ Hlavní oprava nasazena a ověřena — 2026-08-10 14:48</b>
+  Okno záloh transakčního logu rozšířeno z <code>05:30–15:46</code> na <code>00:00:00–23:59:59</code>
+  (<code>date_modified</code> ověřen). Přes noc doloženo: 4 zálohy v každé hodině včetně 0–5,
+  <code>log_reuse_wait_desc = NOTHING</code>. <strong>RPO Ne–Pá kleslo z 13 h 44 min na 15 minut.</strong>
+</div>
+
 <div class="now">
-  <h2>⚠ Stav k této chvíli</h2>
-  <p><code>BackupMaintenancePlan.Tlog</code> má stále okno <strong>05:30–15:46</strong>. Od 15:46 do 5:30 se transakční log nezálohuje, nemá se jak uvolňovat a naráží na strop. <strong>Dnes v noci se scénář zopakuje potřetí</strong> — poprvé 23. 7., podruhé dnes ráno.</p>
-  <p style="margin-bottom:0">Kapitola <a href="#krok">6 — Postup</a> to řeší za 30 minut a každý krok je vratný jedním příkazem.</p>
+  <h2>⚠ Co zbývá</h2>
+  <table style="margin:.6rem 0">
+  <tr><th>#</th><th>Úkol</th><th>Náročnost</th></tr>
+  <tr><td>1</td><td><strong><code>MAXSIZE</code> logu na 200–250 GB</strong> — bez toho se chyba 9002 v noci vrací</td><td>vteřina, za provozu</td></tr>
+  <tr><td>2</td><td><strong>Sobota</strong> v <code>Tlog</code> — <code>freq_interval</code> 63 → 127</td><td>jeden checkbox</td></tr>
+  <tr><td>3</td><td><strong>Přestavba indexů</strong> v jobu <code>1xdenne</code> — prahová logika</td><td>návrh hotový, k ověření</td></tr>
+  <tr><td>4</td><td>Notifikace u zálohovacích jobů (dnes <em>NIKDY</em>)</td><td>3 příkazy</td></tr>
+  <tr><td>5</td><td>Test obnovy k časovému bodu</td><td>odpoledne</td></tr>
+  </table>
+  <p style="margin-bottom:0">Podrobnosti v kapitole <a href="#stav11">2.4</a>, postup v kapitole <a href="#krok">6</a>.</p>
 </div>
 
 <nav class="toc">
@@ -270,6 +284,80 @@ Novější export sahá dál do rána, ale jeho <strong>nejstarší</strong> zá
 <pre><code>DECLARE @Threshold INT = 3000;  -- Zvýšeno z 300!</code></pre>
 
 <p>Někdo práh Page Life Expectancy zvedl desetinásobně, takže job považuje cache za studenou téměř vždy. Je to náplast na tlak na paměť — a ta náplast nefunguje. <strong>Nesouvisí se zálohováním</strong>, ale je to důkaz, že existence SQL Agent jobu neznamená funkční hlídání: 17 selhání za 5 hodin si nikdo nevšiml.</p>
+
+<h3 id="stav11">2.4 Stav po nasazení — noc na 2026-08-11</h3>
+
+<p>Oprava zabrala, ale odhalila druhou vrstvu problému.</p>
+
+<div class="scroll">
+<table>
+<tr><th>Ověřeno</th><th>Výsledek</th></tr>
+<tr><td>Zálohy logu 24/7</td><td>✅ 4 zálohy v každé z 24 hodin</td></tr>
+<tr><td><code>log_reuse_wait_desc</code></td><td>✅ <code>NOTHING</code></td></tr>
+<tr><td>RPO Ne–Pá</td><td>✅ 15 minut</td></tr>
+<tr><td>Chyba 9002</td><td>⚠ <strong>vrátila se, ale jen na 3 minuty</strong> (05:12:18–05:15:35) místo hodin</td></tr>
+</table>
+</div>
+
+<h4>Kde těch 140 GB vzniká</h4>
+
+<pre><code>hodina  0–3     ~0,7 GB celkem
+hodina  4      94,59 GB   ← 1xdenne
+hodina  5      45,99 GB   ← 1xdenne
+hodina  6–18   ~0,3–0,5 GB/h   (běžný provoz 57 uživatelů)
+hodina 19–22   ~4,4 GB celkem
+                          celkem ~151 GB/den</code></pre>
+
+<p><strong>93 % denního objemu logu vznikne mezi 04:00 a 06:00.</strong> Zdrojem je job <code>1xdenne</code> (start 04:00, běh 1 h 46 min), jehož <strong>krok 1 <code>update_index</code> provádí údržbu indexů</strong>.</p>
+
+<div class="box d">
+<b>🔴 Proč to nespraví častější zálohy</b>
+Záloha v 05:00 trvala 3 sekundy — tedy neuvolnila skoro nic — a přesto byl log o 12 minut později plný. Log držela <strong>dlouhá otevřená transakce</strong>: jeden <code>ALTER INDEX … REBUILD</code> je jedna transakce a dokud neskončí, žádná záloha jeho prostor nevrátí. Následující záloha v 05:31 pak odbavila 29,43 GB naráz.
+<br><br>
+<strong>Zkrácení intervalu na 5 minut by tedy nepomohlo vůbec.</strong> Pomůže jen vyšší strop logu (nárazník) a úprava samotné údržby indexů.
+</div>
+
+<h4>Co dělá krok 1 jobu <code>1xdenne</code></h4>
+
+<pre><code>DECLARE @PROCENT AS int = 10;
+...
+'ALTER INDEX [' + i.name + '] ON [...] REBUILD;'
+WHERE ips.avg_fragmentation_in_percent > @PROCENT
+AND ips.page_count > 100</code></pre>
+
+<div class="scroll">
+<table>
+<tr><th>#</th><th>Nález</th><th>Dopad</th></tr>
+<tr><td>1</td><td>Práh 10 % a jediná akce — plná přestavba</td><td><strong>hlavní zdroj 140 GB</strong></td></tr>
+<tr><td>2</td><td><code>page_count &gt; 100</code> (800 kB) místo obvyklých 1000</td><td>spousta drobné práce navíc</td></tr>
+<tr><td>3</td><td><code>UPDATE STATISTICS</code> navíc, a jednou za každý index téže tabulky</td><td>čistá práce navíc — REBUILD statistiky aktualizuje sám</td></tr>
+<tr><td>4</td><td>Chyby polykané do tabulkové proměnné</td><td><strong>job hlásí OK, i když polovina selže</strong></td></tr>
+<tr><td>5</td><td>Bez <code>SORT_IN_TEMPDB</code> a bez <code>MAXDOP</code></td><td>třídění v NAV-LIVE, neomezený paralelismus</td></tr>
+</table>
+</div>
+
+<p>Návrh náhrady je v <code>sql/1xdenne-krok1-udrzba-indexu-navrh.sql</code> — prahová logika (5–30 % <code>REORGANIZE</code>, &gt; 30 % <code>REBUILD</code>), časový limit, <code>RAISERROR</code> při chybách. Má přepínač <code>@JenVypis = 1</code>, který jen ukáže plán, aniž by cokoli provedl.</p>
+
+<div class="box w">
+<b>Pozor na častý omyl</b>
+<code>ONLINE = ON</code> objem logu <strong>nesníží</strong> — naopak, udržuje verzovací strukturu navíc. Pomáhá dostupnosti, ne logu. Hlavní páka je práh fragmentace.
+</div>
+
+<h4>Kapacita záloh — obava z oponentury je vyvrácena</h4>
+
+<p>Naměřeno: <strong>komprese 6,4 : 1</strong> (29,43 GB raw → 4,57 GB na disku).</p>
+
+<div class="scroll">
+<table>
+<tr><th></th><th>Odhad v oponentuře</th><th>Skutečnost</th></tr>
+<tr><td>Log denně, raw</td><td>~151 GB</td><td>151 GB ✓</td></tr>
+<tr><td>Log denně, na disku</td><td>neznámo</td><td><strong>~23 GB</strong></td></tr>
+<tr><td>Retence 14 dní</td><td>„3–5 TB, možná problém"</td><td><strong>~330 GB</strong></td></tr>
+<tr><td>Volné na G:</td><td>—</td><td>1 459 GB</td></tr>
+</table>
+</div>
+
+<p><strong>Kapacita není omezením</strong> žádné z uvažovaných variant. Nález O2 z oponentury je tím uzavřen.</p>
 
 <!-- ============================================ -->
 <h2 id="pricina"><span class="n">3</span>Příčina — proč log přeteče</h2>
@@ -734,14 +822,19 @@ Všechny tři návrhy si RPO a RTO zatím <strong>určily samy</strong>. To je v
 <div class="scroll">
 <table>
 <tr><th>Nález</th><th>Závažnost</th><th>Stav</th></tr>
-<tr><td>Okno log záloh 05:30–15:46 → RPO až 13 h 44 min</td><td><span class="tag t-r">kritické</span></td><td>čeká na krok 6</td></tr>
-<tr><td>Oprava z 23. 7. nebyla nikdy nasazena (<code>date_modified</code> 2025-01-10)</td><td><span class="tag t-r">kritické</span></td><td>doloženo</td></tr>
-<tr><td>Skutečný rozsah incidentu 9002 neznámý (export stropovaný na 300 řádků)</td><td><span class="tag t-a">závažné</span></td><td>nový export bez limitu</td></tr>
+<tr><td>Okno log záloh 05:30–15:46 → RPO až 13 h 44 min</td><td><span class="tag t-r">kritické</span></td><td><span class="tag t-g">vyřešeno 10. 8.</span></td></tr>
+<tr><td>Oprava z 23. 7. nebyla nikdy nasazena (<code>date_modified</code> 2025-01-10)</td><td><span class="tag t-r">kritické</span></td><td><span class="tag t-g">nasazeno 10. 8.</span></td></tr>
+<tr><td><strong>Přestavba indexů v <code>1xdenne</code> generuje 140 GB logu za 2 hodiny</strong></td><td><span class="tag t-r">kritické</span></td><td>návrh náhrady hotový</td></tr>
+<tr><td><strong>Sobota chybí v <code>Tlog</code></strong> (<code>freq_interval</code> 63) → 5,5 h + 8 h díra</td><td><span class="tag t-a">závažné</span></td><td>jeden checkbox</td></tr>
+<tr><td><strong>Strop logu 97,7 GB nestačí na noční špičku</strong></td><td><span class="tag t-a">závažné</span></td><td><code>MAXSIZE</code> na 200–250 GB</td></tr>
+<tr><td>Job <code>1xdenne</code> polyká chyby → hlásí OK i při selhání</td><td><span class="tag t-a">závažné</span></td><td>v návrhu opraveno</td></tr>
+<tr><td>Skutečný rozsah incidentu 9002 neznámý (export stropovaný na 300 řádků)</td><td><span class="tag t-a">závažné</span></td><td>patří do ITDashboardu</td></tr>
 <tr><td><code>shrink_log</code> zmenšoval log na 10 MB</td><td><span class="tag t-a">závažné</span></td><td><span class="tag t-g">vyřešeno</span></td></tr>
-<tr><td>Strop logu nikdy neověřen</td><td><span class="tag t-a">závažné</span></td><td>krok 1</td></tr>
-<tr><td>Neexistuje důkaz, že diferenciální zálohy vznikají</td><td><span class="tag t-a">závažné</span></td><td>krok 1</td></tr>
-<tr><td>Retence 1 týden proti týdenní full záloze</td><td><span class="tag t-a">závažné</span></td><td>po kroku 1</td></tr>
-<tr><td><code>COPY_ONLY</code> u denní full pro test — neznámo</td><td><span class="tag t-a">závažné</span></td><td>krok 1</td></tr>
+<tr><td>Strop logu nikdy neověřen</td><td><span class="tag t-a">závažné</span></td><td><span class="tag t-g">97,7 GB, na stropu</span></td></tr>
+<tr><td>Neexistuje důkaz, že diferenciální zálohy vznikají</td><td><span class="tag t-a">závažné</span></td><td><span class="tag t-g">běží denně 01:30</span></td></tr>
+<tr><td>Kapacita — obava z 3–5 TB</td><td><span class="tag t-a">závažné</span></td><td><span class="tag t-g">vyvráceno, ~330 GB</span></td></tr>
+<tr><td>Retence 1 týden proti týdenní full záloze</td><td><span class="tag t-a">závažné</span></td><td>k rozhodnutí</td></tr>
+<tr><td><code>COPY_ONLY</code> u denní full pro test</td><td><span class="tag t-a">závažné</span></td><td><span class="tag t-r">potvrzeno: chybí</span></td></tr>
 <tr><td>Žádná ověřená kopie mimo server</td><td><span class="tag t-a">závažné</span></td><td>otázka 7</td></tr>
 <tr><td>Obnova k času nikdy netestována</td><td><span class="tag t-a">závažné</span></td><td>kap. 8.6</td></tr>
 <tr><td><code>Emergency_Cache_Warming</code> selhává 17× za 5 h, nikdo si nevšiml</td><td><span class="tag t-a">závažné</span></td><td>mimo scope, hlásit dál</td></tr>
@@ -756,9 +849,9 @@ Všechny tři návrhy si RPO a RTO zatím <strong>určily samy</strong>. To je v
 
 <div class="box k">
 <b>Poznámka na závěr</b>
-Za jedno dopoledne vznikly dva návrhy, dva protinávrhy a tři oponentury. Na produkci se za tu dobu změnila <strong>jedna věc</strong> — vypnul se <code>shrink_log</code>.
+Hlavní oprava je nasazená a ověřená měřením: <strong>RPO Ne–Pá kleslo z 13 hodin 44 minut na 15 minut</strong> a noční výpadek se zkrátil z hodin na tři minuty.
 <br><br>
-Kapitola 6 trvá 30 minut a je celá vratná. Dokud neproběhne, je tenhle dokument jen dobře zdokumentovaný popis problému.
+Zbývající tři minuty nejsou chyba zálohování — je to důsledek toho, že se každou noc přestavují všechny indexy nad 10 % fragmentace. Dokud se to nezmění, bude se to opakovat v malém. Zvýšení stropu logu to zakryje hned dnes, úprava údržby indexů to odstraní.
 </div>
 
 <footer>

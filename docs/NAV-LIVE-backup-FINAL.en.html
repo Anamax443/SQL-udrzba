@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NAV-LIVE — Backup and Recovery | Final Consolidated Specification</title>
+<style>
+:root{
+  --bg:#f7f8fa; --card:#fff; --ink:#1a1f2b; --ink2:#5a6478; --line:#dde1e9;
+  --accent:#1d4ed8; --accent-bg:#eef3ff;
+  --red:#c0273c; --red-bg:#fdeef0;
+  --amber:#a1620a; --amber-bg:#fdf3e3;
+  --green:#136c46; --green-bg:#e8f6ef;
+  --mono:"Cascadia Mono",Consolas,"SF Mono",monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0f1319; --card:#161b24; --ink:#e6eaf2; --ink2:#9aa5b8; --line:#2a3140;
+    --accent:#6f9bff; --accent-bg:#182238;
+    --red:#ff8a99; --red-bg:#2c1620;
+    --amber:#ffc16b; --amber-bg:#2b2114;
+    --green:#7fdcae; --green-bg:#12291f;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.62;padding:2rem 1rem 5rem}
+.wrap{max-width:1060px;margin:0 auto}
+header.head{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:2rem;margin-bottom:1.5rem}
+header.head h1{font-size:1.75rem;line-height:1.25;margin-bottom:.4rem}
+header.head .sub{color:var(--ink2);margin-bottom:1.2rem}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.7rem}
+.fact{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:.6rem .8rem}
+.fact b{display:block;font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--ink2);margin-bottom:.15rem}
+.now{background:var(--red-bg);border:1px solid var(--red);border-left-width:6px;border-radius:10px;padding:1.2rem 1.4rem;margin:1.5rem 0}
+.now h2{border:0;margin:0 0 .5rem;font-size:1.15rem;color:var(--red);padding:0}
+h2{font-size:1.3rem;margin:2.6rem 0 .9rem;padding-bottom:.45rem;border-bottom:2px solid var(--line)}
+h2 .n{display:inline-block;min-width:1.7rem;height:1.7rem;line-height:1.7rem;text-align:center;background:var(--accent);color:#fff;border-radius:50%;font-size:.9rem;margin-right:.5rem}
+h3{font-size:1.05rem;margin:1.5rem 0 .5rem}
+h4{font-size:.95rem;margin:1.1rem 0 .4rem;color:var(--ink2)}
+p,ul,ol{margin-bottom:.85rem}
+ul,ol{padding-left:1.4rem}
+li{margin-bottom:.28rem}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;background:var(--card)}
+th,td{border:1px solid var(--line);padding:.55rem .7rem;text-align:left;vertical-align:top}
+th{background:var(--accent-bg);font-weight:600;font-size:.78rem;letter-spacing:.03em;text-transform:uppercase;color:var(--ink2)}
+pre{background:#0d1117;color:#e6edf3;padding:1rem 1.1rem;border-radius:9px;overflow-x:auto;font-family:var(--mono);font-size:.82rem;line-height:1.5;margin:.8rem 0;border:1px solid #232a36}
+code{font-family:var(--mono);background:var(--accent-bg);padding:.12rem .35rem;border-radius:4px;font-size:.87em}
+pre code{background:none;padding:0;color:inherit}
+.box{border-radius:9px;padding:.9rem 1.1rem;margin:1rem 0;border-left:5px solid}
+.box b:first-child{display:block;margin-bottom:.25rem}
+.box.i{background:var(--accent-bg);border-color:var(--accent)}
+.box.w{background:var(--amber-bg);border-color:var(--amber)}
+.box.d{background:var(--red-bg);border-color:var(--red)}
+.box.k{background:var(--green-bg);border-color:var(--green)}
+.tag{display:inline-block;padding:.1rem .5rem;border-radius:999px;font-size:.7rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;white-space:nowrap}
+.t-r{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
+.t-a{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber)}
+.t-g{background:var(--green-bg);color:var(--green);border:1px solid var(--green)}
+.t-n{background:var(--bg);color:var(--ink2);border:1px solid var(--line)}
+.steps{list-style:none;padding:0;counter-reset:s}
+.steps>li{counter-increment:s;position:relative;padding:1rem 1rem 1rem 3.2rem;background:var(--card);border:1px solid var(--line);border-radius:10px;margin-bottom:.7rem}
+.steps>li::before{content:counter(s);position:absolute;left:1rem;top:1rem;width:1.6rem;height:1.6rem;line-height:1.6rem;text-align:center;border-radius:50%;background:var(--accent);color:#fff;font-size:.82rem;font-weight:700}
+.steps>li .st{font-weight:600;display:block;margin-bottom:.25rem}
+.steps>li .meta{font-size:.8rem;color:var(--ink2)}
+.chk{list-style:none;padding:0}
+.chk li{padding-left:1.7rem;position:relative;margin-bottom:.35rem}
+.chk li::before{content:"☐";position:absolute;left:.2rem;font-size:1rem;color:var(--accent)}
+.toc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:1.1rem 1.3rem}
+.toc ol{margin:0;padding-left:1.3rem}
+.toc a{color:var(--accent);text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.scroll{overflow-x:auto}
+footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid var(--line);color:var(--ink2);font-size:.83rem}
+@media print{body{background:#fff;color:#000;padding:0}pre{background:#f4f4f4;color:#000;border:1px solid #ccc}.steps>li,table,header.head,.toc{break-inside:avoid}h2{break-after:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="head">
+  <h1>NAV-LIVE — Backup and Recovery</h1>
+  <p class="sub">Final consolidated specification. Supersedes all earlier proposals, counter-proposals and opposition reviews — complete in itself. English translation of <code>NAV-LIVE-zalohovani-FINAL.html</code>; the Czech version is authoritative.</p>
+  <div class="facts">
+    <div class="fact"><b>Database</b>NAV-LIVE · Business Central 14</div>
+    <div class="fact"><b>Server</b>B-S-W-SQL-01 · SQL Server 2017</div>
+    <div class="fact"><b>Size</b>800 GB · 57 users</div>
+    <div class="fact"><b>RPO Sun–Fri</b>15 minutes ✅</div>
+    <div class="fact"><b>RPO Saturday</b>5.5 h + 8 h gap</div>
+    <div class="fact"><b>Updated</b>11 Aug 2026</div>
+  </div>
+</header>
+
+<div class="box k" style="border-left-width:6px">
+  <b>✅ Main fix deployed and verified — 2026-08-10 14:48</b>
+  The transaction log backup window was widened from <code>05:30–15:46</code> to <code>00:00:00–23:59:59</code>
+  (<code>date_modified</code> verified). Confirmed overnight: 4 backups in every hour including 0–5,
+  <code>log_reuse_wait_desc = NOTHING</code>. <strong>RPO Sun–Fri dropped from 13 h 44 min to 15 minutes.</strong>
+</div>
+
+<div class="now">
+  <h2>⚠ What remains</h2>
+  <table style="margin:.6rem 0">
+  <tr><th>#</th><th>Task</th><th>Effort</th></tr>
+  <tr><td>1</td><td><strong>Log <code>MAXSIZE</code> to 200–250 GB</strong> — without it, error 9002 returns nightly</td><td>seconds, safe in production</td></tr>
+  <tr><td>2</td><td><strong>Saturday</strong> in <code>Tlog</code> — <code>freq_interval</code> 63 → 127</td><td>one checkbox</td></tr>
+  <tr><td>3</td><td><strong>Index maintenance</strong> in job <code>1xdenne</code> — tiered thresholds</td><td>proposal ready, to be validated</td></tr>
+  <tr><td>4</td><td>Notifications on backup jobs (currently <em>NEVER</em>)</td><td>3 statements</td></tr>
+  <tr><td>5</td><td>Point-in-time restore test</td><td>one afternoon</td></tr>
+  </table>
+  <p style="margin-bottom:0">Details in section <a href="#state11">2.4</a>, procedure in section <a href="#proc">6</a>.</p>
+</div>
+
+<nav class="toc">
+  <strong>Contents</strong>
+  <ol>
+    <li><a href="#goal">The goal and how it is measured</a></li>
+    <li><a href="#evidence">What is established and what is not</a></li>
+    <li><a href="#cause">Root cause — why the log fills up</a></li>
+    <li><a href="#intent">The original design intent</a></li>
+    <li><a href="#target">Target state</a></li>
+    <li><a href="#proc">Rollout procedure</a></li>
+    <li><a href="#monitoring">Monitoring</a></li>
+    <li><a href="#restore">Recovery procedures</a></li>
+    <li><a href="#decisions">Open decisions</a></li>
+    <li><a href="#register">Findings register</a></li>
+  </ol>
+</nav>
+
+<!-- ============================================ -->
+<h2 id="goal"><span class="n">1</span>The goal and how it is measured</h2>
+
+<p>The stated goal: <strong>be able to restore the company to any point in time with the least possible loss of work.</strong> Two numbers measure it.</p>
+
+<table>
+<tr><th>Metric</th><th>Meaning</th><th>Before</th><th>Now</th><th>Target</th></tr>
+<tr><td><strong>RPO</strong></td><td>how much work we lose</td><td>15 min by day<br><span style="color:var(--red)">up to 13 h 44 min at night</span></td><td>15 min Sun–Fri</td><td>5 min in working hours</td></tr>
+<tr><td><strong>RTO</strong></td><td>how long the business is down</td><td>not measured</td><td>not measured</td><td>&lt; 4 h (to be confirmed by management)</td></tr>
+</table>
+
+<div class="box i">
+<b>Where the 13 h 44 min came from</b>
+The last log backup ran at 15:46, the next at 05:30. Throughout that window, all work performed existed <strong>in a single copy</strong> — the file <code>NAV_LIVE_Log.ldf</code> on drive F:. Losing that volume overnight meant losing everything since 15:46.
+</div>
+
+<p><strong>What RPO does not limit:</strong> the precision of a restore. The 05:30 backup also contained every transaction since 15:46, so restoring to 02:00 at night <em>was</em> possible via <code>STOPAT</code>. Granularity is to the second regardless of frequency. Frequency decides only <strong>how much work exists in one copy only</strong>.</p>
+
+<!-- ============================================ -->
+<h2 id="evidence"><span class="n">2</span>What is established and what is not</h2>
+
+<div class="scroll">
+<table>
+<tr><th>Statement</th><th>Source</th><th>State</th></tr>
+<tr><td>Log <code>max_size</code> = <strong>97.7 GB, and the file is already there</strong></td><td>measured</td><td><span class="tag t-g">established</span></td></tr>
+<tr><td><strong>~94 GB of log per night</strong> (from 3.3 GB to 97.7 GB)</td><td>measured</td><td><span class="tag t-g">established</span></td></tr>
+<tr><td>Differential backups exist and run daily at 01:30</td><td>measured</td><td><span class="tag t-g">established</span></td></tr>
+<tr><td>The daily test full backup is <strong>NOT <code>COPY_ONLY</code></strong></td><td>measured</td><td><span class="tag t-r">confirmed finding</span></td></tr>
+<tr><td>The VM is backed up — VSS full daily 18:43, <code>COPY_ONLY</code></td><td>measured</td><td><span class="tag t-g">established</span></td></tr>
+<tr><td>Free space: G: 1 459 GB, F: 391 GB, E: 280 GB, D: 984 GB</td><td>measured</td><td><span class="tag t-g">established</span></td></tr>
+<tr><td>Edition = <strong>Enterprise</strong>, Instant File Initialization <strong>enabled</strong></td><td>measured</td><td><span class="tag t-g">established</span></td></tr>
+<tr><td>VLF count = 435 — fine, no remediation needed</td><td>measured</td><td><span class="tag t-g">established</span></td></tr>
+<tr><td>True extent of the 9002 incidents</td><td>—</td><td><span class="tag t-r">unknown</span></td></tr>
+<tr><td>Where the VSS backup stores data, and whether it is off-server</td><td>—</td><td><span class="tag t-r">unknown</span></td></tr>
+<tr><td>Retention of <code>G:\Backup\NAV-TEST-USERS</code></td><td>—</td><td><span class="tag t-r">unknown</span></td></tr>
+<tr><td>Is G: a different physical array than E: and F:?</td><td>—</td><td><span class="tag t-r">unknown</span></td></tr>
+<tr><td>Point-in-time restore works</td><td>—</td><td><span class="tag t-r">never tested</span></td></tr>
+</table>
+</div>
+
+<h3>2.1 The incidents are larger than the exports show</h3>
+
+<p>Both ITDashboard exports contain <strong>exactly 300 rows</strong>. That is an export cap, not the end of the event.</p>
+
+<div class="scroll">
+<table>
+<tr><th>Export</th><th>Rows</th><th>9002</th><th>208</th><th>other</th><th>Oldest record</th></tr>
+<tr><td><code>…202608100704…</code></td><td><strong>300</strong></td><td>286</td><td>9</td><td>5</td><td>03:33:<strong>18.606</strong>Z</td></tr>
+<tr><td><code>…202608100928…</code></td><td><strong>300</strong></td><td>275</td><td>17</td><td>8</td><td>03:33:<strong>20.956</strong>Z</td></tr>
+</table>
+</div>
+
+<div class="box d">
+<b>Proof of the cap</b>
+The newer export reaches further into the morning, yet its <strong>oldest</strong> record is 2.35 seconds <em>younger</em> than the older export's. Eleven newer events (8 job failures + 3 GPO) pushed exactly eleven of the oldest 9002 errors out of the window: 286 − 275 = 11.
+<br><br>
+<strong>Consequence:</strong> the 9002 burst continues before 03:33:18Z and we do not know how far. The claim that "the incident lasted 74 seconds", which appeared in two external analyses, is an artefact of the export.
+</div>
+
+<h3 id="state11">2.4 State after deployment — night of 2026-08-11</h3>
+
+<p>The fix worked, but it exposed a second layer of the problem.</p>
+
+<div class="scroll">
+<table>
+<tr><th>Verified</th><th>Result</th></tr>
+<tr><td>Log backups 24/7</td><td>✅ 4 backups in each of 24 hours</td></tr>
+<tr><td><code>log_reuse_wait_desc</code></td><td>✅ <code>NOTHING</code></td></tr>
+<tr><td>RPO Sun–Fri</td><td>✅ 15 minutes</td></tr>
+<tr><td>Error 9002</td><td>⚠ <strong>returned, but for only 3 minutes</strong> (05:12:18–05:15:35) instead of hours</td></tr>
+</table>
+</div>
+
+<h4>Where the 140 GB is produced</h4>
+
+<pre><code>hour  0–3     ~0.7 GB total
+hour  4      94.59 GB   ← 1xdenne
+hour  5      45.99 GB   ← 1xdenne
+hour  6–18   ~0.3–0.5 GB/h   (normal load, 57 users)
+hour 19–22   ~4.4 GB total
+                          total ~151 GB/day</code></pre>
+
+<p><strong>93 % of the daily log volume is generated between 04:00 and 06:00.</strong> The source is job <code>1xdenne</code> (starts 04:00, runs 1 h 46 min), whose <strong>step 1 <code>update_index</code> performs index maintenance</strong>.</p>
+
+<div class="box d">
+<b>🔴 Why more frequent backups will not fix this</b>
+The 05:00 backup took 3 seconds — it released almost nothing — yet twelve minutes later the log was full. The log was held by a <strong>long open transaction</strong>: a single <code>ALTER INDEX … REBUILD</code> is one transaction, and until it commits, no backup returns its space. The following backup at 05:31 then carried 29.43 GB at once.
+<br><br>
+<strong>Shortening the interval to 5 minutes would therefore not help at all.</strong> Only a higher log cap (buffer) and a change to index maintenance itself will.
+</div>
+
+<h4>What step 1 of <code>1xdenne</code> does</h4>
+
+<pre><code>DECLARE @PROCENT AS int = 10;
+...
+'ALTER INDEX [' + i.name + '] ON [...] REBUILD;'
+WHERE ips.avg_fragmentation_in_percent &gt; @PROCENT
+AND ips.page_count &gt; 100</code></pre>
+
+<div class="scroll">
+<table>
+<tr><th>#</th><th>Finding</th><th>Impact</th></tr>
+<tr><td>1</td><td>Threshold 10 % and a single action — full rebuild</td><td><strong>primary source of the 140 GB</strong></td></tr>
+<tr><td>2</td><td><code>page_count &gt; 100</code> (800 kB) instead of the usual 1000</td><td>a lot of unnecessary small work</td></tr>
+<tr><td>3</td><td><code>UPDATE STATISTICS</code> on top, once per index of the same table</td><td>pure waste — REBUILD updates statistics itself</td></tr>
+<tr><td>4</td><td>Errors swallowed into a table variable</td><td><strong>the job reports OK even if half of it fails</strong></td></tr>
+<tr><td>5</td><td>No <code>SORT_IN_TEMPDB</code>, no <code>MAXDOP</code></td><td>sorting inside NAV-LIVE, unbounded parallelism</td></tr>
+</table>
+</div>
+
+<p>The proposed replacement is in <code>sql/1xdenne-krok1-udrzba-indexu-navrh.sql</code> — tiered logic (5–30 % <code>REORGANIZE</code>, &gt; 30 % <code>REBUILD</code>), a time budget, and <code>RAISERROR</code> on failure. It has a <code>@JenVypis = 1</code> switch that prints the plan without executing anything.</p>
+
+<div class="box w">
+<b>A common misconception</b>
+<code>ONLINE = ON</code> does <strong>not</strong> reduce log volume — it adds a version store. It helps availability, not the log. The fragmentation threshold is the real lever.
+</div>
+
+<h4>Backup capacity — the concern raised in the opposition review is refuted</h4>
+
+<p>Measured: <strong>compression 6.4 : 1</strong> (29.43 GB raw → 4.57 GB on disk).</p>
+
+<div class="scroll">
+<table>
+<tr><th></th><th>Estimate in the review</th><th>Reality</th></tr>
+<tr><td>Log per day, raw</td><td>~151 GB</td><td>151 GB ✓</td></tr>
+<tr><td>Log per day, on disk</td><td>unknown</td><td><strong>~23 GB</strong></td></tr>
+<tr><td>14-day retention</td><td>"3–5 TB, possibly a problem"</td><td><strong>~330 GB</strong></td></tr>
+<tr><td>Free on G:</td><td>—</td><td>1 459 GB</td></tr>
+</table>
+</div>
+
+<p><strong>Capacity constrains none of the options under consideration.</strong> Finding O2 from the opposition review is thereby closed.</p>
+
+<!-- ============================================ -->
+<h2 id="cause"><span class="n">3</span>Root cause — why the log fills up</h2>
+
+<div class="box i">
+<b>The one sentence the whole document rests on</b>
+Under FULL recovery, a <strong>transaction log backup is the only mechanism that frees space inside the log.</strong> It is not optional protection — it is maintenance.
+</div>
+
+<pre><code>transaction → written to log → space is not freed → log grows
+   → log hits its cap → SQL rejects writes → error 9002
+   → nightly processing fails → morning spent finding out what didn't run</code></pre>
+
+<p>The error message states it precisely:</p>
+
+<pre><code>The transaction log for database 'NAV-LIVE' is full <b>due to 'LOG_BACKUP'</b>.</code></pre>
+
+<p><code>due to 'LOG_BACKUP'</code> does not mean "the disk is full". It means <em>"the log cannot be reused because it is waiting for a log backup that never came."</em></p>
+
+<pre><code>SELECT log_reuse_wait_desc FROM sys.databases WHERE name = 'NAV-LIVE';</code></pre>
+
+<table>
+<tr><th>Value</th><th>Meaning</th></tr>
+<tr><td><code>NOTHING</code></td><td>healthy, the log has space to recycle</td></tr>
+<tr><td><code>LOG_BACKUP</code></td><td>waiting for a log backup — our case</td></tr>
+<tr><td><code>ACTIVE_TRANSACTION</code></td><td>held by a long open transaction</td></tr>
+<tr><td><code>ACTIVE_BACKUP_OR_RESTORE</code></td><td>a backup is running (transient, normal)</td></tr>
+</table>
+
+<p><em>A transient value other than <code>NOTHING</code> is legitimate. Alert only on a state lasting more than 60 minutes.</em></p>
+
+<!-- ============================================ -->
+<h2 id="intent"><span class="n">4</span>The original design intent</h2>
+
+<p>The previous configuration <strong>was not an oversight.</strong> It followed from a deliberate line of reasoning that must be recorded so nobody later mistakes it for a mistake:</p>
+
+<ol>
+<li>Data is entered by <strong>people, during working hours on working days</strong>; at weekends only exceptionally.</li>
+<li>At night, <strong>reports</strong> are generated, and those can be regenerated.</li>
+<li>Therefore what needs protecting is chiefly what people entered.</li>
+</ol>
+
+<p>That reasoning remains the basis of the design. The distinction between daytime and nightly data is reflected in the <strong>interval</strong> of backups. Three points, however, diverge from how SQL Server actually works:</p>
+
+<table>
+<tr><th>#</th><th>Divergence</th><th>Explanation</th></tr>
+<tr><td>a</td><td>A nightly log backup is not protection of nightly data</td><td>It is maintenance — without it the log is never freed and nothing runs in the morning. See section 3.</td></tr>
+<tr><td>b</td><td>The previous configuration saved nothing</td><td>Log volume does not change with backup frequency. The same ~140 GB is backed up either way — spread out, or in one block at 05:30. Same space, same retention.</td></tr>
+<tr><td>c</td><td>The window ended at 15:46, not after working hours</td><td>An order entered at 16:20 was not backed up until 05:30 the next morning. That is exactly the kind of data the design most wants to protect.</td></tr>
+</table>
+
+<div class="box w">
+<b>Still to verify</b>
+Is the nightly workload really only regenerable reports? According to the demilitarisation script for <code>NAV-TEST</code>, the job queue also handles <strong>EDI, M-Files and webshop sync</strong>. An EDI document already sent to a partner cannot be regenerated — nor can a posted document.
+</div>
+
+<!-- ============================================ -->
+<h2 id="target"><span class="n">5</span>Target state</h2>
+
+<h3>5.1 Backups</h3>
+
+<div class="scroll">
+<table>
+<tr><th>Element</th><th>Target</th><th>Note</th></tr>
+<tr><td>Log backups</td><td>every 15 min, all 7 days, 00:00–23:59</td><td><span class="tag t-g">deployed (Sat pending)</span></td></tr>
+<tr><td>Where it runs</td><td>maintenance plan for now</td><td>a standalone T-SQL job is more robust, but the cleanup task lives inside the subplan</td></tr>
+<tr><td>File naming</td><td>one file per backup, timestamp incl. milliseconds</td><td>a name collision silently appends to the same media set</td></tr>
+<tr><td>Options</td><td><code>COMPRESSION, CHECKSUM</code></td><td><strong>never <code>CONTINUE_AFTER_ERROR</code></strong> in a routine job</td></tr>
+<tr><td>Log file cap</td><td><strong>200–250 GB</strong></td><td>current 97.7 GB does not survive the nightly peak</td></tr>
+<tr><td>Full backups</td><td>daily <em>or</em> weekly</td><td>capacity is not a constraint; decide on chain length</td></tr>
+<tr><td>Differentials</td><td>daily — only with a weekly full</td><td>daily full + weekly diff makes no sense</td></tr>
+<tr><td>Out-of-plan full (for NAV-TEST)</td><td><strong>always <code>COPY_ONLY</code></strong> while differentials exist</td><td>otherwise it moves the differential base onto a file that gets overwritten</td></tr>
+<tr><td>Retention</td><td>≥ 2 full cycles (8 days daily, 15 days weekly)</td><td>the current "1 week" is insufficient for a weekly full</td></tr>
+<tr><td>Off-server copy</td><td>mandatory</td><td>the VSS backup may already satisfy this — confirm</td></tr>
+<tr><td>Immutable / offline copy</td><td>mandatory</td><td>ransomware; solved by storage properties, not permissions</td></tr>
+</table>
+</div>
+
+<h3>5.2 What each measure actually protects against</h3>
+
+<div class="scroll">
+<table>
+<tr><th>Threat</th><th>Log backups 24/7</th><th>Off-server copy</th><th>Immutable copy</th><th>Log shipping</th></tr>
+<tr><td>Log disk failure</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+<tr><td>Loss of the server</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+<tr><td>User error</td><td>✅</td><td>✅</td><td>✅</td><td><strong>❌ replicates it</strong></td></tr>
+<tr><td>Ransomware</td><td>❌</td><td>⚠</td><td>✅</td><td><strong>❌ replicates it</strong></td></tr>
+<tr><td>Data corruption</td><td>⚠</td><td>✅</td><td>✅</td><td><strong>❌ replicates it</strong></td></tr>
+<tr><td>Fast return to service (RTO)</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+</table>
+</div>
+
+<div class="box i">
+<b>Log shipping is not a backup</b>
+It is built on log backups and adds fast failover for hardware failure. User error, ransomware and corrupted data are all <strong>replicated within minutes</strong>. The correct framing is <em>backups + optionally log shipping</em>, never "instead of".
+</div>
+
+<!-- ============================================ -->
+<h2 id="proc"><span class="n">6</span>Rollout procedure</h2>
+
+<ol class="steps">
+
+<li>
+<span class="st">Raise the log cap — do this tonight</span>
+<span class="meta">seconds · metadata only · safe during production</span>
+<pre><code>USE [master];
+GO
+ALTER DATABASE [NAV-LIVE] MODIFY FILE (NAME = N'NAV_LIVE_Log', MAXSIZE = 250GB);
+GO
+USE [NAV-LIVE];
+SELECT name,
+       CAST(size*8.0/1024/1024 AS decimal(10,1))     AS size_gb,
+       CAST(max_size*8.0/1024/1024 AS decimal(10,1)) AS max_gb
+FROM sys.database_files WHERE type_desc = 'LOG';</code></pre>
+<p style="margin:.6rem 0 0"><code>max_gb</code> must read 250.0 and <code>size_gb</code> stays 97.7 — the file does not grow now, only its ceiling moves. It will grow at night in 4 GB increments; each increment is zero-initialised (Instant File Initialization does not apply to log files), causing brief pauses. Far better than error 9002.</p>
+</li>
+
+<li>
+<span class="st">Add Saturday to the log backup schedule</span>
+<span class="meta">one checkbox · reversible</span>
+<p>SQL Agent → Jobs → <code>BackupMaintenancePlan.Tlog</code> → Schedules → tick <strong>Saturday</strong>.</p>
+<pre><code>SELECT j.name, s.freq_interval,
+       STUFF(STUFF(RIGHT('000000'+CAST(s.active_start_time AS varchar(6)),6),5,0,':'),3,0,':') AS start_,
+       STUFF(STUFF(RIGHT('000000'+CAST(s.active_end_time AS varchar(6)),6),5,0,':'),3,0,':')   AS end_,
+       s.date_modified
+FROM msdb.dbo.sysjobs j
+JOIN msdb.dbo.sysjobschedules js ON js.job_id = j.job_id
+JOIN msdb.dbo.sysschedules s ON s.schedule_id = js.schedule_id
+WHERE j.name = 'BackupMaintenancePlan.Tlog';</code></pre>
+<p style="margin:.6rem 0 0"><code>freq_interval</code> must become <strong>127</strong> (all seven days: Sun 1 + Mon 2 + Tue 4 + Wed 8 + Thu 16 + Fri 32 + Sat 64). Verify from data — a GUI change on 2026-08-10 silently failed to save once already.</p>
+</li>
+
+<li>
+<span class="st">Review the index maintenance plan — read-only</span>
+<span class="meta">15 min · changes nothing</span>
+<p>Run <code>sql/1xdenne-krok1-udrzba-indexu-navrh.sql</code> with <code>@JenVypis = 1</code>. It prints what it would do and how many GB fall into each category. Only then replace the contents of step 1 of job <code>1xdenne</code>.</p>
+</li>
+
+<li>
+<span class="st">Notifications on backup jobs</span>
+<span class="meta">3 statements · reversible</span>
+<pre><code>EXEC msdb.dbo.sp_update_job @job_name = N'BackupMaintenancePlan.Tlog',
+     @notify_level_email = 2, @notify_email_operator_name = N'AdminOperatorRobot';
+EXEC msdb.dbo.sp_update_job @job_name = N'BackupMaintenancePlan.Tlog2',
+     @notify_level_email = 2, @notify_email_operator_name = N'AdminOperatorRobot';
+EXEC msdb.dbo.sp_update_job @job_name = N'Backup_NAV-LIVE_for_TEST_Optimized.Subplan_1',
+     @notify_level_email = 2, @notify_email_operator_name = N'AdminOperatorRobot';</code></pre>
+<p style="margin:.6rem 0 0">Database Mail works (profile <code>SQLMailForNotification</code>, verified by test message). The reason nobody noticed months of failures is that these jobs have no operator assigned.</p>
+</li>
+
+<li>
+<span class="st">Daily verification</span>
+<span class="meta">2 min · read-only</span>
+<pre><code>SELECT DATEPART(HOUR, backup_finish_date) AS hour_, COUNT(*) AS cnt,
+       CAST(SUM(backup_size)/1024.0/1024/1024 AS decimal(10,2)) AS gb
+FROM msdb.dbo.backupset
+WHERE database_name='NAV-LIVE' AND type='L'
+  AND backup_finish_date &gt; DATEADD(DAY,-1,GETDATE())
+GROUP BY DATEPART(HOUR, backup_finish_date) ORDER BY hour_;
+
+SELECT log_reuse_wait_desc FROM sys.databases WHERE name='NAV-LIVE';</code></pre>
+</li>
+
+</ol>
+
+<!-- ============================================ -->
+<h2 id="monitoring"><span class="n">7</span>Monitoring</h2>
+
+<div class="scroll">
+<table>
+<tr><th>What to watch</th><th>Threshold</th><th>Priority</th></tr>
+<tr><td>Age of the last log backup</td><td>&gt; 60 min</td><td><span class="tag t-r">P0</span></td></tr>
+<tr><td>Error 9002 in the Event Log</td><td>any</td><td><span class="tag t-r">P0</span></td></tr>
+<tr><td>Backup job failure</td><td>any</td><td><span class="tag t-r">P0</span></td></tr>
+<tr><td>Log file utilisation</td><td>&gt; 70 %</td><td><span class="tag t-a">P1</span></td></tr>
+<tr><td><code>log_reuse_wait_desc</code> ≠ <code>NOTHING</code></td><td>longer than 60 min</td><td><span class="tag t-a">P1</span></td></tr>
+<tr><td>Free space on the backup volume</td><td>&lt; 20 %</td><td><span class="tag t-a">P1</span></td></tr>
+<tr><td>Age of the last full backup</td><td>&gt; 26 h / &gt; 8 days by variant</td><td><span class="tag t-a">P1</span></td></tr>
+<tr><td>Change of <code>date_modified</code> on the schedule</td><td>any</td><td><span class="tag t-a">P1</span></td></tr>
+<tr><td><code>DBCC CHECKDB</code> result</td><td>error or &gt; 8 days old</td><td><span class="tag t-n">P2</span></td></tr>
+<tr><td>Test restore result</td><td>failure or &gt; 8 days old</td><td><span class="tag t-n">P2</span></td></tr>
+</table>
+</div>
+
+<div class="box w">
+<b>A disabled watchdog</b>
+The server already has a job <code>BC_Jobs_Backup_Monitor_Simple</code> (calling <code>sp_CheckJobChanges_Simple</code> in database <code>AXI_DEV</code>) which is <strong>disabled</strong>. Despite its name it watches <em>job changes</em> — exactly what would have revealed that a schedule had been reverted. Review what it does before enabling.
+</div>
+
+<!-- ============================================ -->
+<h2 id="restore"><span class="n">8</span>Recovery procedures</h2>
+
+<h3>8.1 User error — return to a point in time</h3>
+
+<div class="box d">
+<b>Never restore over production</b>
+Point-in-time recovery is always whole-database. Rolling NAV-LIVE back to 09:59 discards the work of all 57 users since. Restore a <strong>copy under a different name</strong> and move the data across manually.
+</div>
+
+<pre><code>RESTORE DATABASE [NAV-RECOVER]
+FROM DISK = 'G:\Backup\...\NAV-LIVE_full.bak'
+WITH MOVE 'NAV_LIVE_Data' TO 'T:\Database\NAV-RECOVER\NAV-RECOVER.mdf',
+     MOVE 'NAV_LIVE_Log'  TO 'T:\Database\NAV-RECOVER\NAV-RECOVER.ldf',
+     NORECOVERY, STATS = 5;
+
+RESTORE LOG [NAV-RECOVER] FROM DISK = '...\log_001.trn' WITH NORECOVERY;
+-- ...
+RESTORE LOG [NAV-RECOVER] FROM DISK = '...\log_NNN.trn'
+WITH RECOVERY, STOPAT = '2026-08-10T09:59:00';</code></pre>
+
+<h3>8.2 When the exact time is unknown — STANDBY</h3>
+
+<p>Between individual <code>RESTORE LOG</code> steps the database can be inspected, letting you close in on the moment of the error step by step:</p>
+
+<pre><code>RESTORE LOG [NAV-RECOVER] FROM DISK = '...\log_005.trn'
+WITH STANDBY = 'T:\Database\NAV-RECOVER\undo.dat',
+     STOPAT = '2026-08-10T09:00:00';
+
+SELECT TOP 10 * FROM [NAV-RECOVER].dbo.[AXIMA$Sales Header] ORDER BY [No_] DESC;</code></pre>
+
+<h3>8.3 Database lost, server alive</h3>
+
+<ol>
+<li><strong>Tail-log backup first</strong>, while the <code>.ldf</code> is readable — this reduces the loss to virtually zero:
+<pre><code>BACKUP LOG [NAV-LIVE] TO DISK = 'G:\Backup\tail.trn' WITH NORECOVERY, INIT;</code></pre>
+If the log is damaged: <code>WITH CONTINUE_AFTER_ERROR</code>. <em>This is the only legitimate use of that option.</em></li>
+<li>Full → (differential) → all logs → tail log <code>WITH RECOVERY</code></li>
+<li>Restart the BC service on <code>B-S-W-NAV-01</code></li>
+</ol>
+
+<h3>8.4 Whole server lost</h3>
+
+<p><strong><code>master</code> and <code>msdb</code></strong> must be restored as well — without them, logins, jobs and maintenance plans are rebuilt by hand. They are small and must be part of the backup plan. Order: install SQL Server → <code>master</code> (single-user) → <code>msdb</code> → NAV-LIVE.</p>
+
+<h3>8.5 Acceptance protocol — when recovery is done</h3>
+
+<p>Recovery is <strong>not</strong> complete merely because the database is <code>ONLINE</code>:</p>
+
+<ul class="chk">
+<li>Database is <code>ONLINE</code> and <code>DBCC CHECKDB</code> is clean</li>
+<li>BC service tier has connected to the database</li>
+<li>A user has signed in to the Business Central client</li>
+<li>The last posted document matches the expected recovery time</li>
+<li>A test sales invoice posts without number-series errors</li>
+<li>Job queue is <em>Ready</em>, nothing stuck in <em>In Process</em></li>
+<li>M-Files and EDI folders are functional</li>
+<li>Recorded in the operations log — what was restored, why, and to where</li>
+</ul>
+
+<h3>8.6 Restore testing</h3>
+
+<p><code>Restore-NAV-TEST.ps1</code> restores <code>NAV-TEST</code> from the latest <code>.bak</code> and demilitarises it. Every run is <strong>proof that the full backup is restorable</strong> and a measurement of RTO. Three things are missing:</p>
+
+<ol>
+<li><strong>Record the outcome and duration</strong> — otherwise there is no measured RTO and no history.</li>
+<li><strong>Once a month, restore with <code>STOPAT</code></strong> to a random time from the previous week. Today's test verifies only the full backup, not the log chain — precisely the part the whole goal rests on.</li>
+<li><strong><code>DBCC CHECKDB</code> on the restored copy</strong> — integrity checking for free, without touching production.</li>
+</ol>
+
+<div class="box w">
+<b>A bug in the script</b>
+<pre style="margin:.5rem 0"><code>Sort-Object LastAccessTime -Descending</code></pre>
+Last-access-time updates are <strong>disabled by default</strong> on modern Windows (<code>NtfsDisableLastAccessUpdate</code>). The script may pick an <strong>old</strong> backup; the restore succeeds and nobody notices that week-old data is being tested. Use <code>LastWriteTime</code> and add an age check.
+</div>
+
+<div class="box d">
+<b>Security of the test copy</b>
+<code>Restore-NAV-TEST.ps1</code> produces a <strong>full copy of live company data</strong> every day. Demilitarisation disconnects the surrounding systems — <em>not</em> access to the data itself. Anyone with access to <code>NAV-TEST</code> has all company data, one day old. This may be a consciously accepted risk; it must at least be recorded.
+</div>
+
+<!-- ============================================ -->
+<h2 id="decisions"><span class="n">9</span>Open decisions</h2>
+
+<div class="scroll">
+<table>
+<tr><th>#</th><th>Question</th><th>Who answers</th><th>Blocks</th></tr>
+<tr><td>1</td><td><strong>Where does the VSS backup store data, and is it off-server?</strong></td><td>virtualisation admin</td><td><strong>copies 2 and 3</strong></td></tr>
+<tr><td>2</td><td>Retention of <code>G:\Backup\NAV-TEST-USERS</code></td><td>backup admin</td><td>usability of differentials</td></tr>
+<tr><td>3</td><td>Which job produces the daily 02:00 full?</td><td>query</td><td>the <code>COPY_ONLY</code> fix</td></tr>
+<tr><td>4</td><td>Is G: a different physical array than E: and F:?</td><td>infrastructure admin</td><td>value of copy 1</td></tr>
+<tr><td>5</td><td>Is the nightly workload only regenerable reports?</td><td>users + BC partner</td><td>assessment of nightly RPO</td></tr>
+<tr><td>6</td><td><strong>What RPO and RTO does the business need?</strong></td><td><strong>management</strong></td><td><strong>everything else</strong></td></tr>
+<tr><td>7</td><td>Is Software Assurance in place? (passive secondary)</td><td>licensing</td><td>log shipping</td></tr>
+</table>
+</div>
+
+<div class="box w">
+<b>Question 6 cannot be answered by IT</b>
+All proposals so far have <strong>set RPO and RTO themselves</strong>. That is fine as a starting estimate, not as a permanent state. How many hours of work the company may lose, and how long it may be down, is a business decision.
+</div>
+
+<!-- ============================================ -->
+<h2 id="register"><span class="n">10</span>Findings register</h2>
+
+<div class="scroll">
+<table>
+<tr><th>Finding</th><th>Severity</th><th>State</th></tr>
+<tr><td>Log backup window 05:30–15:46 → RPO up to 13 h 44 min</td><td><span class="tag t-r">critical</span></td><td><span class="tag t-g">fixed Aug 10</span></td></tr>
+<tr><td>The Jul 23 fix was never deployed (<code>date_modified</code> 2025-01-10)</td><td><span class="tag t-r">critical</span></td><td><span class="tag t-g">deployed Aug 10</span></td></tr>
+<tr><td><strong>Index rebuilds in <code>1xdenne</code> generate 140 GB of log in 2 hours</strong></td><td><span class="tag t-r">critical</span></td><td>replacement proposed</td></tr>
+<tr><td><strong>Saturday missing from <code>Tlog</code></strong> (<code>freq_interval</code> 63) → 5.5 h + 8 h gap</td><td><span class="tag t-a">serious</span></td><td>one checkbox</td></tr>
+<tr><td><strong>Log cap of 97.7 GB does not survive the nightly peak</strong></td><td><span class="tag t-a">serious</span></td><td><code>MAXSIZE</code> to 200–250 GB</td></tr>
+<tr><td>Job <code>1xdenne</code> swallows errors → reports OK on failure</td><td><span class="tag t-a">serious</span></td><td>fixed in the proposal</td></tr>
+<tr><td>True extent of 9002 unknown (export capped at 300 rows)</td><td><span class="tag t-a">serious</span></td><td>belongs to ITDashboard</td></tr>
+<tr><td><code>shrink_log</code> shrank the log to 10 MB</td><td><span class="tag t-a">serious</span></td><td><span class="tag t-g">resolved</span></td></tr>
+<tr><td>Differential backups — no evidence they exist</td><td><span class="tag t-a">serious</span></td><td><span class="tag t-g">they run daily 01:30</span></td></tr>
+<tr><td>Capacity — the 3–5 TB concern</td><td><span class="tag t-a">serious</span></td><td><span class="tag t-g">refuted, ~330 GB</span></td></tr>
+<tr><td>Retention of 1 week against a weekly full</td><td><span class="tag t-a">serious</span></td><td>decision pending</td></tr>
+<tr><td><code>COPY_ONLY</code> on the daily test full</td><td><span class="tag t-a">serious</span></td><td><span class="tag t-r">confirmed: missing</span></td></tr>
+<tr><td>No verified off-server copy</td><td><span class="tag t-a">serious</span></td><td>question 1</td></tr>
+<tr><td>Point-in-time restore never tested</td><td><span class="tag t-a">serious</span></td><td>section 8.6</td></tr>
+<tr><td>Backups unencrypted; NAV-TEST is a copy of live data</td><td><span class="tag t-a">serious</span></td><td>decision pending</td></tr>
+<tr><td><code>LastAccessTime</code> in <code>Restore-NAV-TEST.ps1</code></td><td><span class="tag t-n">medium</span></td><td>fix in section 8.6</td></tr>
+<tr><td>No runbook usable by a stand-in (bus factor 1)</td><td><span class="tag t-n">medium</span></td><td>this document is the basis</td></tr>
+<tr><td>Three near-continuous self-monitoring / warming jobs</td><td><span class="tag t-n">medium</span></td><td>outside backup scope</td></tr>
+<tr><td>Someone logs on interactively to production SQL with a temporary profile</td><td><span class="tag t-n">minor</span></td><td>to be verified</td></tr>
+</table>
+</div>
+
+<div class="box k">
+<b>Closing note</b>
+The main fix is deployed and verified by measurement: <strong>RPO Sun–Fri fell from 13 hours 44 minutes to 15 minutes</strong>, and the nightly outage shrank from hours to three minutes.
+<br><br>
+Those remaining three minutes are not a backup defect — they are the consequence of rebuilding every index above 10 % fragmentation every night. Until that changes, it will keep recurring on a small scale. Raising the log cap masks it from tonight; changing index maintenance removes it.
+</div>
+
+<footer>
+  <p><strong>NAV-LIVE — Backup and Recovery · final consolidated specification (EN)</strong></p>
+  <p>Consolidates: proposals v1 and v2, opposition review 1, counter-proposal v3, opposition review 2 and an external technical review. Sources: ITDashboard Event Log exports (10–11 Aug 2026), queries against <code>msdb</code>, SQL Server Agent screenshots, and the <code>Restore-NAV-TEST.ps1</code> script.</p>
+  <p>Translation of <code>NAV-LIVE-zalohovani-FINAL.html</code>; the Czech version is authoritative. Self-contained — no external references.</p>
+</footer>
+
+</div>
+</body>
+</html>

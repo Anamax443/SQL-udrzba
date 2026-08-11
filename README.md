@@ -26,8 +26,11 @@
 ### Struktura
 
 ```
+README.md / README.en.md          přehled projektu (CS / EN)
+HANDOFF.md / HANDOFF.en.md        aktuální stav a další krok (CS / EN)
 docs/
-  NAV-LIVE-zalohovani-FINAL.html    ← závazné zadání k realizaci
+  NAV-LIVE-zalohovani-FINAL.html    ← závazné zadání k realizaci (CS)
+  NAV-LIVE-backup-FINAL.en.html     tentýž dokument (EN)
   2026-08-10-navrh-v1.md            první verze, překonaná
   2026-08-10-navrh-v2.md            technický základ — teorie, runbooky, ověřovací skripty
   oponentury/
@@ -35,10 +38,13 @@ docs/
     2026-08-10-oponentura-2-protinavrh-v3.md   proti externímu protinávrhu, 6 nálezů (N1–N6)
     externi/                                    podklady od jiných nástrojů, nerecenzované
 sql/
-  NAV-LIVE-tlog-nasazeni.sql        11 částí, postupné nasazení, každý krok vratný
+  NAV-LIVE-tlog-nasazeni.sql                 11 částí, postupné nasazení, každý krok vratný
+  1xdenne-krok1-udrzba-indexu-navrh.sql      návrh náhrady údržby indexů (režim @JenVypis)
 evidence/
-  itdashboard-events-*.csv          exporty Event Logu z incidentu
+  itdashboard-events-*.csv          exporty Event Logu z incidentů
 ```
+
+> Česká verze je závazná, anglická je překlad. Oponentury se nepřekládají — jsou to datované záznamy.
 
 ### Zjištěné, doložené měřením 2026-08-10
 
