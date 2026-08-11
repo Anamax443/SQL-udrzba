@@ -8,6 +8,8 @@
 
 ## Aktuální téma: zálohování NAV-LIVE
 
+> **Aktuální stav a další krok: [HANDOFF.md](HANDOFF.md)** — čti první.
+
 **Podle čeho se postupuje:** [`docs/NAV-LIVE-zalohovani-FINAL.html`](docs/NAV-LIVE-zalohovani-FINAL.html) — konsolidované zadání, soběstačné, neodkazuje na ostatní soubory.
 
 ### Stav
@@ -16,10 +18,10 @@
 |---|---|
 | Databáze | NAV-LIVE (Business Central 14), 800 GB, 57 uživatelů |
 | Server | B-S-W-SQL-01, SQL Server 2017 Enterprise (14.0.2120.1) |
-| Problém | Zálohy transakčního logu běží jen 05:30–15:46 → RPO v noci až 13 h 44 min |
-| Incident | 2026-08-10 ~05:33 — chyba 9002, log plný, transakce odmítány. Podruhé (poprvé 23. 7.) |
-| Hotovo | `shrink_log` vypnut |
-| **Nehotovo** | **`BackupMaintenancePlan.Tlog` má stále okno 05:30–15:46** |
+| Původní problém | Zálohy transakčního logu jen 05:30–15:46 → RPO v noci až 13 h 44 min |
+| **Opraveno 2026-08-10** | okno rozšířeno na **00:00–23:59**, ověřeno; RPO Ne–Pá = **15 minut** |
+| **Zbývá** | sobota (`freq_interval` 63 → 127) · nárazník `MAXSIZE` · přestavba indexů v jobu `1xdenne` |
+| Incidenty 9002 | 23. 7. · 10. 8. (hodiny) · 11. 8. (**3 minuty** — zbytkový vliv noční přestavby indexů) |
 
 ### Struktura
 

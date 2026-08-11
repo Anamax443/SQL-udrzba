@@ -1,0 +1,301 @@
+﻿Time;Computer;Level;Event ID;Source;Log;Message
+2026-08-11T05:57:36.896Z;B-S-W-SQL-01;err;1803;Microsoft-Windows-TPM-WMI;System;"A PK-signed Key Exchange Key (KEK) cannot be found for this device. Check with the device manufacturer for proper key provisioning. This device signature information is included here. DeviceAttributes: BaseBoardManufacturer:Intel Corporation;FirmwareManufacturer:VMware, Inc.;FirmwareVersion:VMW71.00V.16707776.B64.2008070230;OEMModelNumber:VMware7,1;OEMModelBaseBoard:440BX Desktop Reference Platform;OEMModelSystemFamily:;OEMManufacturerName:VMware, Inc.;OEMModelSKU:;OSArchitecture:amd64; BucketId: c42abddf3a3802ff518f24f8dec0f7e2a2b3605404ff0d50864da0a9d2650503 BucketConfidenceLevel: High Confidence. For more information, please see https://go.microsoft.com/fwlink/?linkid=2339472"
+2026-08-11T05:54:10.193Z;B-S-W-SQL-01;warn;4098;Group Policy Drive Maps;Application;The user 'Y:' preference item in the 'MAP_Network_Drive {93585CE6-7A8B-43B2-A7BF-ABADEC939650}' Group Policy Object did not apply because it failed with error code '0x80070035 The network path was not found.' This error was suppressed.
+2026-08-11T05:54:10.176Z;B-S-W-SQL-01;warn;4098;Group Policy Drive Maps;Application;The user 'I:' preference item in the 'MAP_Network_Drive {93585CE6-7A8B-43B2-A7BF-ABADEC939650}' Group Policy Object did not apply because it failed with error code '0x80070035 The network path was not found.' This error was suppressed.
+2026-08-11T05:45:56.803Z;B-S-W-SQL-01;warn;208;SQLSERVERAGENT;Application;SQL Server Scheduled Job 'Emergency_Cache_Warming' (0x144466B7C98DCF46A3631FFDFB46581C) - Status: Failed - Invoked on: 2026-08-11 07:40:00 - Message: The job failed. The Job was invoked by Schedule 3094 (Every_5_Min_PLE_Check). The last step to run was step 1 (Check_PLE_And_Warm2).
+2026-08-11T05:38:41.256Z;B-S-W-SQL-01;warn;4098;Group Policy Drive Maps;Application;The user 'Y:' preference item in the 'MAP_Network_Drive {93585CE6-7A8B-43B2-A7BF-ABADEC939650}' Group Policy Object did not apply because it failed with error code '0x80070035 The network path was not found.' This error was suppressed.
+2026-08-11T05:38:41.240Z;B-S-W-SQL-01;warn;4098;Group Policy Drive Maps;Application;The user 'I:' preference item in the 'MAP_Network_Drive {93585CE6-7A8B-43B2-A7BF-ABADEC939650}' Group Policy Object did not apply because it failed with error code '0x80070035 The network path was not found.' This error was suppressed.
+2026-08-11T05:35:02.360Z;B-S-W-SQL-01;warn;208;SQLSERVERAGENT;Application;SQL Server Scheduled Job 'Emergency_Cache_Warming' (0x144466B7C98DCF46A3631FFDFB46581C) - Status: Failed - Invoked on: 2026-08-11 07:25:00 - Message: The job failed. The Job was invoked by Schedule 3094 (Every_5_Min_PLE_Check). The last step to run was step 1 (Check_PLE_And_Warm2).
+2026-08-11T05:05:55.860Z;B-S-W-SQL-01;warn;208;SQLSERVERAGENT;Application;SQL Server Scheduled Job 'Emergency_Cache_Warming' (0x144466B7C98DCF46A3631FFDFB46581C) - Status: Failed - Invoked on: 2026-08-11 07:00:00 - Message: The job failed. The Job was invoked by Schedule 3094 (Every_5_Min_PLE_Check). The last step to run was step 1 (Check_PLE_And_Warm2).
+2026-08-11T04:55:02.246Z;B-S-W-SQL-01;warn;208;SQLSERVERAGENT;Application;SQL Server Scheduled Job 'Emergency_Cache_Warming' (0x144466B7C98DCF46A3631FFDFB46581C) - Status: Failed - Invoked on: 2026-08-11 06:45:00 - Message: The job failed. The Job was invoked by Schedule 3094 (Every_5_Min_PLE_Check). The last step to run was step 1 (Check_PLE_And_Warm2).
+2026-08-11T04:25:56.436Z;B-S-W-SQL-01;warn;208;SQLSERVERAGENT;Application;SQL Server Scheduled Job 'Emergency_Cache_Warming' (0x144466B7C98DCF46A3631FFDFB46581C) - Status: Failed - Invoked on: 2026-08-11 06:20:00 - Message: The job failed. The Job was invoked by Schedule 3094 (Every_5_Min_PLE_Check). The last step to run was step 1 (Check_PLE_And_Warm2).
+2026-08-11T04:15:01.226Z;B-S-W-SQL-01;warn;208;SQLSERVERAGENT;Application;SQL Server Scheduled Job 'Emergency_Cache_Warming' (0x144466B7C98DCF46A3631FFDFB46581C) - Status: Failed - Invoked on: 2026-08-11 06:05:00 - Message: The job failed. The Job was invoked by Schedule 3094 (Every_5_Min_PLE_Check). The last step to run was step 1 (Check_PLE_And_Warm2).
+2026-08-11T03:45:56.196Z;B-S-W-SQL-01;warn;208;SQLSERVERAGENT;Application;SQL Server Scheduled Job 'Emergency_Cache_Warming' (0x144466B7C98DCF46A3631FFDFB46581C) - Status: Failed - Invoked on: 2026-08-11 05:40:00 - Message: The job failed. The Job was invoked by Schedule 3094 (Every_5_Min_PLE_Check). The last step to run was step 1 (Check_PLE_And_Warm2).
+2026-08-11T03:41:39.900Z;B-S-W-SQL-01;warn;4098;Group Policy Drive Maps;Application;The user 'Y:' preference item in the 'MAP_Network_Drive {93585CE6-7A8B-43B2-A7BF-ABADEC939650}' Group Policy Object did not apply because it failed with error code '0x80070035 The network path was not found.' This error was suppressed.
+2026-08-11T03:41:39.886Z;B-S-W-SQL-01;warn;4098;Group Policy Drive Maps;Application;The user 'I:' preference item in the 'MAP_Network_Drive {93585CE6-7A8B-43B2-A7BF-ABADEC939650}' Group Policy Object did not apply because it failed with error code '0x80070035 The network path was not found.' This error was suppressed.
+2026-08-11T03:35:01.446Z;B-S-W-SQL-01;warn;208;SQLSERVERAGENT;Application;SQL Server Scheduled Job 'Emergency_Cache_Warming' (0x144466B7C98DCF46A3631FFDFB46581C) - Status: Failed - Invoked on: 2026-08-11 05:25:00 - Message: The job failed. The Job was invoked by Schedule 3094 (Every_5_Min_PLE_Check). The last step to run was step 1 (Check_PLE_And_Warm2).
+2026-08-11T03:15:35.013Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:34.730Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:32.990Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:30.986Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:30.970Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:29.733Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:28.966Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:28.950Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:26.946Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:26.930Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:24.926Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:24.910Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:24.736Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:22.906Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:22.890Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:22.733Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:20.886Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:20.870Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:19.913Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:19.726Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:18.866Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:18.846Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:17.720Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:17.016Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:16.843Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:16.826Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:15.606Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:14.813Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:14.733Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:14.466Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:14.123Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:12.790Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:10.770Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:10.756Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:09.720Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:08.750Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:06.730Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:06.713Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:04.726Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:04.713Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:04.696Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:02.693Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:00.670Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:15:00.656Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:59.726Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:58.660Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:58.643Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:56.630Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:56.616Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:54.720Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:54.596Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:52.723Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:52.583Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:52.566Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:50.563Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:50.546Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:49.906Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:49.716Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:48.540Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:48.523Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:47.706Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:47.000Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:46.513Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:46.500Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:45.586Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:44.716Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:44.500Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:44.483Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:44.453Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:44.093Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:42.476Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:42.460Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:40.453Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:40.436Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:39.713Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:38.430Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:38.413Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:36.403Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:35.446Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:35.430Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:34.706Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:34.393Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:34.376Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:32.363Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:30.356Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:30.340Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:29.696Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:28.333Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:28.316Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:26.310Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:26.293Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:24.690Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:24.280Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:24.266Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:22.716Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:22.260Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:22.246Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:20.246Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:20.233Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:19.903Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:19.676Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:18.223Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:18.206Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:17.703Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:16.996Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:16.196Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:15.593Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:14.660Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:14.450Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:14.186Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:14.170Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:14.076Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:12.156Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:12.140Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:10.126Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:09.650Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:08.110Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:08.096Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:06.090Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:04.636Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:04.066Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:02.053Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:02.040Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:00.030Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:14:00.016Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:59.623Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:58.013Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:57.996Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:56.753Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:56.736Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:55.993Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:55.980Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:54.610Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:53.963Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:53.946Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:52.716Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:51.946Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:51.930Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:49.916Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:49.886Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:49.603Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:47.906Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:47.893Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:47.700Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:46.993Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:45.876Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:45.576Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:44.603Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:44.430Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:44.066Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:43.846Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:41.823Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:39.820Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:39.803Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:39.600Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:37.783Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:37.766Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:35.773Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:35.760Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:34.600Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:33.746Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:33.733Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:31.730Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:31.713Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:29.700Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:29.686Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:29.590Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:27.683Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:27.666Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:25.656Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:25.643Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:24.576Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:23.640Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:23.626Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:22.700Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:21.616Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:21.600Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:19.876Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:19.593Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:19.576Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:17.690Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:17.580Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:17.563Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:16.976Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:15.576Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:15.546Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:14.563Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:14.423Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:14.070Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:13.533Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:13.516Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:11.506Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:11.490Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:09.563Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:09.470Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:09.453Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:09.436Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:07.433Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:07.416Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:05.410Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:05.396Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:04.546Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:03.373Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:03.356Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:01.353Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:13:01.340Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:59.536Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:59.333Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:59.316Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:57.296Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:57.280Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:55.276Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:55.260Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:55.243Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:54.523Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:53.240Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:53.223Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:53.206Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:52.690Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:51.200Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:51.183Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:51.166Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:49.866Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:49.520Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:49.163Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:49.146Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:47.673Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:47.126Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:47.110Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:47.093Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:46.970Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:45.573Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:45.090Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:45.073Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:45.056Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:44.506Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:44.413Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:44.056Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:43.053Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:43.036Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:43.020Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:41.006Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:40.990Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:38.970Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:38.953Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:36.933Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:36.916Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:34.910Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:34.896Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:32.873Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:32.860Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:30.850Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:30.833Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:30.816Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:28.813Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:28.796Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:26.776Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:26.760Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:24.736Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:24.723Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:22.703Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:22.686Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:19.866Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:18.063Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-11T03:12:18.046Z;B-S-W-SQL-01;err;9002;MSSQLSERVER;Application;The transaction log for database 'NAV-LIVE' is full due to 'LOG_BACKUP'.
+2026-08-10T17:36:40.480Z;B-S-W-SQL-01;warn;208;SQLSERVERAGENT;Application;SQL Server Scheduled Job 'Emergency_Cache_Warming' (0x144466B7C98DCF46A3631FFDFB46581C) - Status: Failed - Invoked on: 2026-08-10 19:30:00 - Message: The job failed. The Job was invoked by Schedule 3094 (Every_5_Min_PLE_Check). The last step to run was step 1 (Check_PLE_And_Warm2).
+2026-08-10T17:25:02.163Z;B-S-W-SQL-01;warn;208;SQLSERVERAGENT;Application;SQL Server Scheduled Job 'Emergency_Cache_Warming' (0x144466B7C98DCF46A3631FFDFB46581C) - Status: Failed - Invoked on: 2026-08-10 19:15:00 - Message: The job failed. The Job was invoked by Schedule 3094 (Every_5_Min_PLE_Check). The last step to run was step 1 (Check_PLE_And_Warm2).
+2026-08-10T17:12:04.703Z;B-S-W-SQL-01;err;1511;Microsoft-Windows-User Profiles Service;Application;Windows cannot find the local profile and is logging you on with a temporary profile. Changes you make to this profile will be lost when you log off.
+2026-08-10T17:10:32.516Z;B-S-W-SQL-01;warn;4098;Group Policy Drive Maps;Application;The user 'Y:' preference item in the 'MAP_Network_Drive {93585CE6-7A8B-43B2-A7BF-ABADEC939650}' Group Policy Object did not apply because it failed with error code '0x80070035 The network path was not found.' This error was suppressed.
+2026-08-10T17:10:32.500Z;B-S-W-SQL-01;warn;4098;Group Policy Drive Maps;Application;The user 'I:' preference item in the 'MAP_Network_Drive {93585CE6-7A8B-43B2-A7BF-ABADEC939650}' Group Policy Object did not apply because it failed with error code '0x80070035 The network path was not found.' This error was suppressed.
+2026-08-10T16:55:55.900Z;B-S-W-SQL-01;warn;208;SQLSERVERAGENT;Application;SQL Server Scheduled Job 'Emergency_Cache_Warming' (0x144466B7C98DCF46A3631FFDFB46581C) - Status: Failed - Invoked on: 2026-08-10 18:50:00 - Message: The job failed. The Job was invoked by Schedule 3094 (Every_5_Min_PLE_Check). The last step to run was step 1 (Check_PLE_And_Warm2).
+2026-08-10T16:45:01.986Z;B-S-W-SQL-01;warn;208;SQLSERVERAGENT;Application;SQL Server Scheduled Job 'Emergency_Cache_Warming' (0x144466B7C98DCF46A3631FFDFB46581C) - Status: Failed - Invoked on: 2026-08-10 18:35:00 - Message: The job failed. The Job was invoked by Schedule 3094 (Every_5_Min_PLE_Check). The last step to run was step 1 (Check_PLE_And_Warm2).
+2026-08-10T16:42:02.623Z;B-S-W-SQL-01;err;1511;Microsoft-Windows-User Profiles Service;Application;Windows cannot find the local profile and is logging you on with a temporary profile. Changes you make to this profile will be lost when you log off.
+2026-08-10T16:42:00.320Z;B-S-W-SQL-01;err;1511;Microsoft-Windows-User Profiles Service;Application;Windows cannot find the local profile and is logging you on with a temporary profile. Changes you make to this profile will be lost when you log off.
+2026-08-10T16:41:58.240Z;B-S-W-SQL-01;err;1511;Microsoft-Windows-User Profiles Service;Application;Windows cannot find the local profile and is logging you on with a temporary profile. Changes you make to this profile will be lost when you log off.
+2026-08-10T16:41:55.016Z;B-S-W-SQL-01;err;1511;Microsoft-Windows-User Profiles Service;Application;Windows cannot find the local profile and is logging you on with a temporary profile. Changes you make to this profile will be lost when you log off.
+2026-08-10T16:41:52.440Z;B-S-W-SQL-01;err;1511;Microsoft-Windows-User Profiles Service;Application;Windows cannot find the local profile and is logging you on with a temporary profile. Changes you make to this profile will be lost when you log off.
+2026-08-10T16:41:50.073Z;B-S-W-SQL-01;err;1511;Microsoft-Windows-User Profiles Service;Application;Windows cannot find the local profile and is logging you on with a temporary profile. Changes you make to this profile will be lost when you log off.
+2026-08-10T16:41:47.906Z;B-S-W-SQL-01;err;1511;Microsoft-Windows-User Profiles Service;Application;Windows cannot find the local profile and is logging you on with a temporary profile. Changes you make to this profile will be lost when you log off.
+2026-08-10T16:41:44.876Z;B-S-W-SQL-01;err;1511;Microsoft-Windows-User Profiles Service;Application;Windows cannot find the local profile and is logging you on with a temporary profile. Changes you make to this profile will be lost when you log off.
+2026-08-10T16:41:42.853Z;B-S-W-SQL-01;err;1511;Microsoft-Windows-User Profiles Service;Application;Windows cannot find the local profile and is logging you on with a temporary profile. Changes you make to this profile will be lost when you log off.
+2026-08-10T16:41:40.640Z;B-S-W-SQL-01;err;1511;Microsoft-Windows-User Profiles Service;Application;Windows cannot find the local profile and is logging you on with a temporary profile. Changes you make to this profile will be lost when you log off.
+2026-08-10T16:41:38.410Z;B-S-W-SQL-01;err;1511;Microsoft-Windows-User Profiles Service;Application;Windows cannot find the local profile and is logging you on with a temporary profile. Changes you make to this profile will be lost when you log off.
+2026-08-10T16:41:35.450Z;B-S-W-SQL-01;err;1511;Microsoft-Windows-User Profiles Service;Application;Windows cannot find the local profile and is logging you on with a temporary profile. Changes you make to this profile will be lost when you log off.
+2026-08-10T16:41:33.550Z;B-S-W-SQL-01;err;1511;Microsoft-Windows-User Profiles Service;Application;Windows cannot find the local profile and is logging you on with a temporary profile. Changes you make to this profile will be lost when you log off.
