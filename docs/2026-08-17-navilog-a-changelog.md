@@ -100,13 +100,40 @@ Nezávisle potvrzuje, že krok 7 přestal mazat na přelomu června.
 
 ## 5. Change Log Entry v NAV-LIVE
 
-| Tabulka | Řádků | MB |
+| Tabulka | Řádků | GB (jen cluster) |
 |---|---|---|
-| `AXIMA$Change Log Entry` | **350 867 119** | **129 518** |
-| `AXIMA Slovensko$Change Log Entry` | 33 877 129 | 10 599 |
-| ostatní firmy | ~42 000 | ~29 |
+| `AXIMA$Change Log Entry` | **350 867 119** | 126,5 |
+| `AXIMA Slovensko$Change Log Entry` | 33 877 129 | 10,4 |
+| ostatní firmy | ~42 000 | ~0,03 |
 
-Dohromady **137 GB ≈ 20 % datového souboru NAV-LIVE** (684 GB).
+**Pozor, tohle jsou jen clustery.** S indexy je `AXIMA$Change Log Entry`
+podstatně větší:
+
+| Struktura | GB |
+|---|---|
+| clustered (`$0`) | 126,5 |
+| `$4` | 33,5 |
+| `$5` | 30,0 |
+| `$3` | 23,5 |
+| `$1` | 17,7 |
+| `$2` | 10,8 |
+| `IX_ChangeLog_PKField2Value` | 7,4 |
+| **celkem** | **249,5** |
+
+Nonclustered indexy = **123 GB**, tedy skoro tolik co data. Se slovenskou
+firmou dělá Change Log dohromady ~270 GB = **zhruba 47 % obsazeného místa
+v NAV-LIVE**. Smazání 125 mil. z 350 mil. řádků (36 %) uvolní ~90 GB.
+
+### Soubory NAV-LIVE (2026-08-17)
+
+| Soubor | Velikost | Použito | Volno |
+|---|---|---|---|
+| `NAV_LIVE_Data` | 687,6 GB | 581,1 GB | **106,5 GB** |
+| `NAV_LIVE_Log` | 109,7 GB | 4,7 GB | 105,0 GB |
+
+Log má oproti srpnu zvednutý strop a je téměř prázdný — spolu se zálohami
+logu á 15 minut (od 2026-08-17 sedm dní v týdnu) je prostor pro dávkový úklid
+bezpečný.
 
 ```
 nejstarší:  Entry No_ 2 303 791 123   2026-03-27 00:00:00.017

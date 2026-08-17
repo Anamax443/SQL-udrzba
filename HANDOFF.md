@@ -11,7 +11,7 @@
 | | Stav |
 |---|---|
 | RPO Ne–Pá | **15 minut** (bylo 13 h 44 min) ✅ |
-| RPO sobota | 5,5 h + 8 h díra ❌ — chybí jeden checkbox |
+| RPO sobota | **15 minut** ✅ od 2026-08-17 13:41 (ověřit 2026-08-23) |
 | Chyba 9002 | zmenšena z hodin na **3 minuty**, ale **vrací se** ⚠ |
 | Příčina nočního objemu | **nalezena** — job `1xdenne`, krok 1 `update_index` ✅ |
 | Kapacita záloh | **není problém** — komprese 6,4:1 ✅ |
@@ -43,10 +43,30 @@ Metadatová změna, lze za provozu, okamžitá. F: má 391 GB volných. Bez toho
 
 Volitelně kolem 22:00 předrostit soubor, aby v noci neprobíhalo nulování po 4 GB krocích. **Ne za provozu** — nulování 40 GB zastaví zápisy do logu na minuty.
 
-### 3.2 Sobota — jeden checkbox
+### 3.2 Sobota — HOTOVO 2026-08-17 13:41, ověřit 2026-08-23
 
-SQL Agent → Jobs → `BackupMaintenancePlan.Tlog` → Schedules → zaškrtnout **Saturday**.
-Kontrola: `freq_interval` musí být **127** (teď je 63). Pak je `Tlog2` nadbytečný a lze vypnout.
+`BackupMaintenancePlan.Tlog` má `freq_interval = 127` (všech 7 dní, á 15 min,
+00:00–23:59), `Tlog2` je vypnutý (`enabled = 0`). Obě změny mají shodný
+`date_modified` 2026-08-17 13:41:05 → provedeno jedním uložením plánu v designeru.
+
+**Naměřená díra, kterou to zavírá** (`backupset`, typ L, 2026-08-15):
+
+```
+sobota 15. 8.  hodina 14   1 záloha   ← Tlog2, á hodinu
+sobota 15. 8.  hodina 15   1 záloha
+sobota 15. 8.  hodiny 16–23  ŽÁDNÁ    ← 8 hodin bez zálohy logu
+neděle 16. 8.  hodiny 0–23   4/hod    ← Tlog, á 15 min
+```
+
+Osm hodin v sobotu večer bez zálohy logu — a přesně v tom okně startuje ve
+20:01 týdenní job `Axi_Navilog_a_jine_Jardoviny`, jehož krok 10 maže v NAV-LIVE.
+Proto to nebyl kosmetický nedodělek, ale **podmínka** pro úklid Change Logu
+([docs/2026-08-17-navilog-a-changelog.md](docs/2026-08-17-navilog-a-changelog.md)).
+
+**Ověření patří na neděli 2026-08-23 ráno** — stejný dotaz musí u soboty 22. 8.
+ukázat hodiny 16–23 po čtyřech zálohách. Dokud to není ověřeno, je sobota
+závislá jen na téhle změně; `Tlog2` už nekryje nic. Kdyby se změna neudržela
+(jednou už se ztratila, 2026-07-23), hned zpátky zapnout `Tlog2`.
 
 ### 3.3 Skutečná oprava nočního objemu — návrh hotový
 
