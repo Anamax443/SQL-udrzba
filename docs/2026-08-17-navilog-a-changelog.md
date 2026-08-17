@@ -149,8 +149,10 @@ zamrzlé dno na hranici 2026-03-27 · hledání přes všechny kroky všech job�
 (vrátí jen kroky 1 a 10) · 48 položek BC Job Queue, mezi nimi **žádný report 510**
 „Delete Change Log Entries".
 
-**Slovenská firma se neuklízí vůbec** — začíná na `Entry No_ = 1` z 2016-12-08.
-Krok 10 řeší jen firmu AXIMA.
+**Slovenská firma je mimo rozsah** (rozhodnuto 2026-08-17). Neuklízí se vůbec —
+`AXIMA Slovensko$Change Log Entry` začíná na `Entry No_ = 1` z 2016-12-08,
+33,9 mil. řádků / ~21 GB s indexy. Krok 10 řeší jen firmu AXIMA a tak to
+zůstane; tady se s tím nic nedělá.
 
 ### Co se loguje
 
@@ -211,7 +213,7 @@ se sám nespustí a doháněcí mazání v produkci máme plně pod kontrolou ru
    ([sql/Axi-NaviLog-1M-clear-davkove.sql](../sql/Axi-NaviLog-1M-clear-davkove.sql)).
    Kvůli 56 GB volného místa začít od nejmenší `_1M`, tím se uvolní prostor pro `_3M`, pak `_6M`.
 4. **Change Log Setup** — vypnout logování u 60105 a 60030, pokud je nikdo nečte.
-5. Rozhodnout o `NAVILOG_ARCHIVE` (65 GB) a o retenci slovenské firmy.
+5. Rozhodnout o `NAVILOG_ARCHIVE` (65 GB) — plní ho ruční roční rituál, nikde nepopsaný.
 
 ---
 
