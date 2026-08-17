@@ -2,36 +2,47 @@
 
 > Druhé téma projektu, vedle zálohování NAV-LIVE. Zdroj: exporty Event Logu v
 > [evidence/](../evidence/) a dotazy spuštěné operátorem v SSMS na `B-S-W-SQL-01`.
-> **Rozpracované** — otevřené body jsou na konci.
+> Diagnostika **uzavřená**, zásahy zatím žádné.
 
 ---
 
-## 1. Řetěz v jedné větě
+## 1. K čemu to celé je
+
+V produkci (NAV-LIVE) se `Change Log Entry` drží krátký — okno 3 měsíce — aby
+Navision nebyl zahlcený. Historie se před smazáním kopíruje do databáze `Axi`,
+kde se v ní dá hledat, aniž by to zatěžovalo produkci. Stupně `_6M`, `_3M`, `_1M`
+jsou zmenšené kopie pro běžné dotazy „co bylo nedávno".
+
+**Ten mechanismus dnes nefunguje.** Kopírování do `Axi` běží, ale mazání
+v produkci stojí od 2026-06-27.
+
+---
+
+## 2. Řetěz v jedné větě
 
 Nedávkovaný `DELETE` v kroku 7 přeroste 50GB log databáze `Axi`, job spadne — a
-protože kroky se vyhodnocují po sobě, **nedoběhnou ani kroky 8, 9 a 10**, mezi
-nimi úklid `Change Log Entry` v NAV-LIVE. Ten proto stojí od jara a tabulka
-narostla na 126,5 GB.
+protože `on_fail_action = 2` („Quit the job reporting failure"), **nedoběhnou
+kroky 8, 9 ani 10**. Krok 10 je právě to mazání v NAV-LIVE.
 
 ---
 
-## 2. Job `Axi_Navilog_a_jine_Jardoviny`
+## 3. Job `Axi_Navilog_a_jine_Jardoviny`
 
 `job_id = 0xD4752DB20260CB4EA69A8FC1C2D7A709` · schedule 30 „Axi" · `enabled = 1`
-· beze změny od **2025-10-31**.
+· beze změny od **2025-10-31**. Všechny kroky `on_fail_action = 2`.
 
-| # | Krok | DB | Stav |
-|---|---|---|---|
-| 1 | `NaviLog_plneni` | Axi | |
-| 2 | `6M` | Axi | |
-| 3 | `3M` | Axi | |
-| 4 | `1M` | Axi | |
-| 5 | `6M_clear` | Axi | stejná stavba jako 7 → **stejná vada** |
-| 6 | `3M_clear` | Axi | stejná stavba jako 7 → **stejná vada** |
-| 7 | `1M_clear` | Axi | **padá** |
-| 8 | `optimalizace` | Axi | nedoběhne |
-| 9 | `Indexy` | Axi | nedoběhne |
-| 10 | `DELETE_ChangeLogEntry_NavLive` | **NAV-LIVE** | nedoběhne |
+| # | Krok | DB | Co dělá | Stav |
+|---|---|---|---|---|
+| 1 | `NaviLog_plneni` | Axi | NAV-LIVE Change Log → `NaviLog`, inkrementálně podle `Entry No_` | běží |
+| 2 | `6M` | Axi | `NaviLog` → `NaviLog_6M` (< 6 měsíců) | běží |
+| 3 | `3M` | Axi | `NaviLog_6M` → `NaviLog_3M` (< 3 měsíce) | běží |
+| 4 | `1M` | Axi | `NaviLog_3M` → `NaviLog_1M` (< 1 měsíc) | běží |
+| 5 | `6M_clear` | Axi | `DELETE` z `_6M` starší 6 měsíců | běží, stejná vada |
+| 6 | `3M_clear` | Axi | `DELETE` z `_3M` starší 3 měsíců | běží, stejná vada |
+| 7 | `1M_clear` | Axi | `DELETE` z `_1M` starší 1 měsíce | **padá** |
+| 8 | `optimalizace` | Axi | **celý zakomentovaný** (jsou v něm `DBCC SHRINKFILE`) | nedoběhne |
+| 9 | `Indexy` | Axi | zakládání indexů | nedoběhne |
+| 10 | `DELETE_ChangeLogEntry_NavLive` | **NAV-LIVE** | `DELETE` Change Logu starší 3 měsíců | **nedoběhne** |
 
 Krok 7 doslova:
 
@@ -41,27 +52,53 @@ DELETE FROM [Axi].[dbo].[NaviLog_1M]
 WHERE [Date and Time] < CAST(DATEADD(m, -1, GetDate()) AS date)
 ```
 
-Jedna transakce přes celý rozsah. Běh 2026-08-15 20:01 → 9002 v 06:23 →
-rollback → pád v 06:38. **Rollback vrátí i to, co už bylo smazáno, takže
-retence nikdy neuspěje** a každý další běh je delší.
+Běh 2026-08-15 20:01 → 9002 v 06:23 → rollback → pád v 06:38 (10 h 37 min).
+**Rollback vrátí i to, co už bylo smazáno, takže retence nikdy neuspěje.**
 
-Náhrada (dávky + časový strop): [sql/Axi-NaviLog-1M-clear-davkove.sql](../sql/Axi-NaviLog-1M-clear-davkove.sql).
-**Nenasazeno** — čeká se na `sp_spaceused` a indexy `NaviLog_1M`.
+> Krok 8 nechat zakomentovaný. `SHRINKFILE` po každém běhu je anti-pattern —
+> stejný, jaký se v srpnu vypínal u jobu `shrink_log`.
 
 ---
 
-## 3. `Axi` — naměřená fakta
+## 4. `Axi` — naměřená fakta
 
 | | |
 |---|---|
 | Recovery model | **SIMPLE** (zálohy logu neexistují a nepomohly by) |
-| `AXI.mdf` | 732 GB, strop 879 GB, `E:` |
-| `AXI.ldf` | **50 GB = přesně na svém `max_size`**, `F:` |
+| `AXI.mdf` | 750 GB, **použito 676 GB, volno 56 GB**, strop 879 GB, `E:` |
+| `AXI.ldf` | 50 GB = přesně na `max_size`, aktuálně použito 25 MB, `F:` |
 | Zálohy | jen plné, denně ~18:42, 654 → 692 GB · **RPO 24 h** |
+
+### Tabulky rodiny NaviLog
+
+| Tabulka | Řádků | GB (data) | Struktura |
+|---|---|---|---|
+| `NAVILOG_ARCHIVE` | 686 701 029 | 64,9 | **halda** + 1 NC index |
+| `NaviLog` | 404 396 993 | 56,2 | clustered PK na `Entry No_` + NC |
+| `NaviLog_6M` | 374 584 804 | 52,3 | **halda** + 2 NC indexy |
+| `NaviLog_3M` | 236 666 549 | 33,5 | **halda** + 2 NC indexy |
+| `NaviLog_1M` | 120 250 104 | 16,8 | **halda** + 2 NC indexy |
+
+Data ~224 GB, ale soubor je použitý na 676 GB → **~450 GB jsou nonclustered
+indexy**. Sedí to: index `idx_*_TableNo_UserID_OldNewValue` nese `Old Value`
+a `New Value`, tedy nejširší sloupce — je to prakticky druhá kopie dat.
+
+### Dvě vady, které brání jednoduché opravě
+
+1. **Haldy.** `DELETE` z haldy neuvolní stránky. Kroky 5 a 6 tedy mažou řádky,
+   ale místo v souboru nevracejí.
+2. **Na `[Date and Time]` není index** — nikde, všechny vedou přes `Table No_`.
+   Každý `DELETE` podle data je tedy full scan. Dávkovaná verze by scan dělala
+   v každé dávce → **dávkování samo o sobě situaci zhorší**, dokud není index.
+
+### Kontrolní výpočet
+
+`NaviLog_1M` má 120,3 mil. řádků = při 2,45 mil./den **49 dní** místo 30.
+Nezávisle potvrzuje, že krok 7 přestal mazat na přelomu června.
 
 ---
 
-## 4. Change Log Entry v NAV-LIVE
+## 5. Change Log Entry v NAV-LIVE
 
 | Tabulka | Řádků | MB |
 |---|---|---|
@@ -71,79 +108,93 @@ Náhrada (dávky + časový strop): [sql/Axi-NaviLog-1M-clear-davkove.sql](../sq
 
 Dohromady **137 GB ≈ 20 % datového souboru NAV-LIVE** (684 GB).
 
-### Rozsah dat
-
 ```
 nejstarší:  Entry No_ 2 303 791 123   2026-03-27 00:00:00.017
 nejnovější: Entry No_ 2 684 225 319   2026-08-17 08:56:46.257
 ```
 
-Čas `00:00:00.017` je podpis mazání s hranicí na celý den → krok 10 **naposledy
-úspěšně doběhl s hranicí 2026-03-27**. Z toho zpětně:
+Čas `00:00:00.017` je podpis mazání s hranicí na celý den. Krok 10 má okno
+3 měsíce → **naposledy doběhl 2026-06-27**, tedy je mrtvý 51 dní. Za tu dobu
+přibylo ~125 mil. řádků / ~45 GB. **Přírůstek 2,45 mil. řádků ≈ 0,9 GB/den.**
 
-| Okno kroku 10 | Naposledy doběhl |
-|---|---|
-| 1 měsíc | ~2026-04-27 |
-| 3 měsíce | ~2026-06-27 |
-| 4 měsíce | ~2026-07-27 |
-| 6 měsíců | vyloučeno (vyšlo by na budoucnost) |
-
-**Přírůstek 2,45 mil. řádků/den** (350,9 mil. za 143 dní).
+**Nic jiného tu tabulku nemaže** — ověřeno třemi způsoby:
+zamrzlé dno na hranici 2026-03-27 · hledání přes všechny kroky všech jobů
+(vrátí jen kroky 1 a 10) · 48 položek BC Job Queue, mezi nimi **žádný report 510**
+„Delete Change Log Entries".
 
 **Slovenská firma se neuklízí vůbec** — začíná na `Entry No_ = 1` z 2016-12-08.
 Krok 10 řeší jen firmu AXIMA.
 
-### Indexy
+### Co se loguje
 
-Cluster na `Entry No_`, k tomu **šest nonclustered** ($1–$5 + `IX_ChangeLog_PKField2Value`);
-`$4` nese i `New Value`, je tedy široký. Každý smazaný řádek se odstraňuje ze
-sedmi struktur.
+Profil posledního milionu záznamů:
 
-`[Date and Time]` **není nikde vedoucí sloupec** (v `$2` je až druhý za `Table No_`)
-→ mazat podle data nejde efektivně. Správná cesta: najít hraniční `Entry No_`
-binárním hledáním (~30 seeků) a mazat po dávkách `WHERE [Entry No_] < @Hranice`,
-tedy sekvenčně po clusteru.
+| Table No_ | Podíl |
+|---|---|
+| **60105** | **39,0 %** |
+| **60030** | **31,2 %** |
+| 39 (Purchase Line) | 5,1 % |
+| 5407 | 4,7 % |
+| zbytek (21 tabulek) | ~20 % |
 
-### Odhad práce
-
-| Cílová retence | Smazat | Uvolní v souboru |
-|---|---|---|
-| 1 měsíc | ~275 mil. řádků (78 %) | ~99 GB |
-| 3 měsíce | ~125 mil. řádků | ~45 GB |
-| 4 měsíce | ~52 mil. řádků | ~19 GB |
+**Dvě vlastní tabulky (ID > 50000) dělají 70 % objemu.** Vypnutí logování u nich
+v *Change Log Setup* by srazilo přírůstek z 2,45 mil. na ~730 tis. řádků denně —
+to je větší páka než jakékoli mazání. Za pozornost stojí i položky 110–123
+(zaúčtované doklady), které se z principu nemění.
 
 ---
 
-## 5. Souvislosti mimo tenhle job
+## 6. Kdo ta data čte
 
-**Kapacita `E:`** — disk 1 700 GB, volných 269,7 GB. `NAV_LIVE_Data` 684 GB
-(strop 879) + `AXI.mdf` 732 GB (strop 879) = ty dva soubory prakticky *jsou*
-ten disk. Do svých stropů potřebují ještě 342 GB, k dispozici je 270 →
-**stropy souborů jsou o ~70 GB přeprodané**, dřív než na `MAXSIZE` narazí disk.
+Job **`BusinessCentral_info`** — rozbor licencí. Kroky 1, 2 a 4 čtou
+**výhradně `[Axi].[dbo].[NaviLog]`** a plní `LicenceUsageSummary`,
+`UserTableUsageSummary`, `UserTableUsageDetailed` v databázi **`AXI_DEV`**.
+Kroky 5 a 6 čtou `Report Activity Log` z NAV-LIVE.
 
-**Historie jobů mizí.** `jobhistory_max_rows = 1000`, `max_rows_per_job = 100`.
-Pět jobů (mj. `Emergency_Cache_Warming`, který běží 288×/den, a
-`BackupMaintenancePlan.Tlog`) drží po 100 řádcích = polovinu stropu. Cokoli, co
-běží jednou denně, je do druhého dne z historie venku — proto u
-`Axi_Navilog_a_jine_Jardoviny` nebyl po incidentu žádný záznam. Náprava:
-SSMS → SQL Server Agent → Properties → History, ~50 000 / 2 000; projeví se po
-restartu služby Agenta.
+Stupně `_6M`, `_3M`, `_1M` a `NAVILOG_ARCHIVE` **nečte žádný job ani procedura** —
+slouží k ručním dotazům uživatelů. Reálné využití ukáže
+`sys.dm_db_index_usage_stats` (zatím nezměřeno).
 
-**`Emergency_Cache_Warming`** — 186 pádů za 2,6 dne, trvání dvojvrcholové
-(92× 6 min, 93× přesně 10 min = 600 s). Samostatné téma, diagnostika v
-[sql/Emergency_Cache_Warming-diagnostika.sql](../sql/Emergency_Cache_Warming-diagnostika.sql).
+### Vedlejší nálezy
+
+- Kroky 5 a 6 jobu `BusinessCentral_info` jsou **znak po znaku totožné**.
+- Výsledky licenčního rozboru se ukládají do **vývojové** databáze `AXI_DEV`.
+- Licenční statistika počítá `GROUP BY YEAR(...)` nad `NaviLog`, která drží jen
+  ~165 dní. Přes `MERGE` se hodnota za aktuální rok při každém běhu přepíše →
+  **číslo za rok během roku klesá**, jak starší měsíce vypadávají z okna.
+- `NAVILOG_ARCHIVE` nikdo neplní ani nečte — vypadá na jednorázový ruční odklad.
 
 ---
 
-## 6. Otevřené body
+## 7. Plán
 
-1. **Text kroku 10** — bez něj neznáme retenční okno, tedy ani objem mazání.
-2. **Text kroků 5 a 6** — podle délky příkazu stejná vada, jen menší tabulky.
-3. `on_fail_action` jednotlivých kroků — potvrdit, že pád kroku 7 job opravdu ukončí.
-4. `sp_spaceused` a indexy `NaviLog_1M` — velikost dávky a jestli je nutný index.
-5. Co se vlastně loguje — *Change Log Setup* v BC; mazání je úklid následku,
-   páka je logovat míň polí. Mapování toku: [sql/ChangeLog-mapovani-toku.sql](../sql/ChangeLog-mapovani-toku.sql).
-6. Slovenská firma — rozhodnout retenci, dnes žádná.
-7. **Pořadí zásahů:** krok 10 přepsat na dávky **dřív**, než se opraví krok 7.
-   NAV-LIVE je ve FULL recovery; kdyby se krok 10 odblokoval v dnešní podobě,
-   udělal by tam přesně tu 9002, která se v srpnu opravovala.
+**Pořadí je dané tím, že pád kroku 7 je zároveň pojistka:** dokud padá, krok 10
+se sám nespustí a doháněcí mazání v produkci máme plně pod kontrolou ručně.
+
+1. **NAV-LIVE Change Log — doháněcí běhy ručně.**
+   [sql/NAV-LIVE-ChangeLog-uklid-davkove.sql](../sql/NAV-LIVE-ChangeLog-uklid-davkove.sql):
+   maže podle `Entry No_` (hranice binárním hledáním), dávky s commitem, časový
+   strop, pojistka na zaplnění logu. Nejdřív `@LimitMin = 15` na změření
+   propustnosti; celkem ~125 mil. řádků, odhad 2–4 noci.
+   *Před prvním během ověřit, že `NaviLog` obsahuje vše, co se v produkci maže.*
+2. **Nahradit krok 10** tímtéž skriptem — od té chvíle jen denní přírůstek.
+3. **Tiery v `Axi`**: dát jim clusterovaný index na `[Date and Time]`. Vyřeší to
+   naráz tři věci — dotazy uživatelů budou seek místo scanu, `DELETE` přestane
+   být scan, a zmizí problém haldy. Teprve pak dávkovat kroky 5–7
+   ([sql/Axi-NaviLog-1M-clear-davkove.sql](../sql/Axi-NaviLog-1M-clear-davkove.sql)).
+   Kvůli 56 GB volného místa začít od nejmenší `_1M`, tím se uvolní prostor pro `_3M`, pak `_6M`.
+4. **Change Log Setup** — vypnout logování u 60105 a 60030, pokud je nikdo nečte.
+5. Rozhodnout o `NAVILOG_ARCHIVE` (65 GB) a o retenci slovenské firmy.
+
+---
+
+## 8. Otevřené body
+
+- `sp_spaceused` a přesné rozložení indexů u `NaviLog%` (kde přesně leží těch 450 GB).
+- `sys.dm_db_index_usage_stats` — čte někdo tiery a archiv?
+- Co jsou tabulky **60105** a **60030** (překlad přes `[NAV-LIVE].[dbo].[Object]`).
+- Kolik místa je uvnitř `NAV_LIVE_Data` (obdoba `FILEPROPERTY` dotazu pro `Axi`).
+- **Historie jobů mizí**: `jobhistory_max_rows = 1000`, `max_rows_per_job = 100`;
+  pět jobů drží po 100 řádcích. `Emergency_Cache_Warming` běží 288×/den a průběžně
+  vymazává historii všech ostatních. Náprava: SSMS → SQL Server Agent → Properties
+  → History, ~50 000 / 2 000, projeví se po restartu služby Agenta.
